@@ -8,15 +8,9 @@
 
 import SwiftUI
 
-struct TestViewA: View {
-    var body: some View {
-        Text("aa")
-    }
-}
-struct TestViewB: View {
-    var body: some View {
-        Text("bb")
-    }
+enum Hand: Codable {
+    case left
+    case right
 }
 
 struct SettingView: View {
@@ -25,6 +19,10 @@ struct SettingView: View {
         @Bindable var setting = settingViewModel
         Form {
             Toggle("触覚フィードバックを使用", isOn: $setting.isOn)
+            Picker("スマホを持つ手", selection: $setting.selectedHand) {
+                Text("右手(デフォルト)").tag(Hand.right)
+                Text("左手").tag(Hand.left)
+            }
             NavigationLink(destination: {
                 SettingProblemTypeView()
             }, label: {
@@ -33,6 +31,9 @@ struct SettingView: View {
         }
         .onDisappear() {
             UserDefaults.standard.set(setting.isOn, forKey: "isHaptics")
+        }
+        .onChange(of: settingViewModel.selectedHand) {
+            settingViewModel.changeHand()
         }
     }
 }
@@ -108,6 +109,7 @@ struct NumberButtonStyle: ButtonStyle {
 @Observable
 class SettingViewModel {
     var isOn: Bool = true
+    var selectedHand: Hand = .right
     let encoder = JSONEncoder()
     let decoder = JSONDecoder()
     
@@ -178,6 +180,29 @@ extension SettingViewModel {
         } catch {
             print("error")
             // TODO: show error message
+        }
+    }
+    
+    func changeHand() {
+        do {
+            let data = try encoder.encode(selectedHand)
+            UserDefaults.standard.set(data, forKey: "hand")
+        } catch {
+            print("error: \(error)")
+            selectedHand = .right
+        }
+    }
+    
+    func fetchHand() {
+        do {
+            if let data = UserDefaults.standard.data(forKey: "hand") {
+                selectedHand = try decoder.decode(Hand.self, from: data)
+            } else {
+                selectedHand = .right
+            }
+        } catch {
+            print("error: \(error)")
+            selectedHand = .right
         }
     }
 }

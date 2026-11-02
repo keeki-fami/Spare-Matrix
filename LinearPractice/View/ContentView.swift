@@ -146,6 +146,10 @@ struct ContentView: View {
     @Environment(\.scenePhase) var scenePhase
     @State var gameCenterManager = GameCenterManager.shared
     
+    var memoButtonAlignment: Alignment {
+        settingViewModel.selectedHand == .right ? .bottomTrailing : .bottomLeading
+    }
+    
     var body: some View {
         @Bindable var contentViewModel = contentViewModel
 
@@ -191,7 +195,7 @@ struct ContentView: View {
                                 
                             }
                         }
-                        .overlay(alignment: .bottomTrailing) {
+                        .overlay(alignment: memoButtonAlignment) {
                             Button(action: {
                                 
                             }, label: {
@@ -256,6 +260,7 @@ struct ContentView: View {
                     case .updateAvailable:
                         contentViewModel.updateAlert = true
                     default:
+                        print(status)
                         contentViewModel.updateAlert = false
                     }
                     
@@ -286,6 +291,7 @@ struct ContentView: View {
                     }
                     
                     settingViewModel.fetchProblemType()
+                    settingViewModel.fetchHand()
                 }
                 .toolbar{
                     ToolbarItem(placement: .topBarTrailing) {
