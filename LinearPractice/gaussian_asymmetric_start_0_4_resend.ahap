@@ -1,0 +1,278 @@
+{
+  "Version": 1.0,
+  "Metadata": {
+    "Project": "AsymmetricGaussianHaptic",
+    "Description": "Continuous 1.5-second haptic with intensity 0.4 at start and faster post-peak decay"
+  },
+  "Pattern": [
+    {
+      "Event": {
+        "Time": 0.0,
+        "EventType": "HapticContinuous",
+        "EventDuration": 1.5,
+        "EventParameters": [
+          {
+            "ParameterID": "HapticIntensity",
+            "ParameterValue": 1.0
+          },
+          {
+            "ParameterID": "HapticSharpness",
+            "ParameterValue": 0.45
+          }
+        ]
+      }
+    },
+    {
+      "ParameterCurve": {
+        "ParameterID": "HapticIntensityControl",
+        "Time": 0.0,
+        "ParameterCurveControlPoints": [
+          {
+            "Time": 0.0,
+            "ParameterValue": 0.4
+          },
+          {
+            "Time": 0.025,
+            "ParameterValue": 0.5171
+          },
+          {
+            "Time": 0.05,
+            "ParameterValue": 0.5211
+          },
+          {
+            "Time": 0.075,
+            "ParameterValue": 0.5262
+          },
+          {
+            "Time": 0.1,
+            "ParameterValue": 0.5324
+          },
+          {
+            "Time": 0.125,
+            "ParameterValue": 0.5399
+          },
+          {
+            "Time": 0.15,
+            "ParameterValue": 0.5485
+          },
+          {
+            "Time": 0.175,
+            "ParameterValue": 0.5583
+          },
+          {
+            "Time": 0.2,
+            "ParameterValue": 0.5694
+          },
+          {
+            "Time": 0.225,
+            "ParameterValue": 0.5816
+          },
+          {
+            "Time": 0.25,
+            "ParameterValue": 0.595
+          },
+          {
+            "Time": 0.275,
+            "ParameterValue": 0.6096
+          },
+          {
+            "Time": 0.3,
+            "ParameterValue": 0.6253
+          },
+          {
+            "Time": 0.325,
+            "ParameterValue": 0.642
+          },
+          {
+            "Time": 0.35,
+            "ParameterValue": 0.6598
+          },
+          {
+            "Time": 0.375,
+            "ParameterValue": 0.6784
+          },
+          {
+            "Time": 0.4,
+            "ParameterValue": 0.6978
+          },
+          {
+            "Time": 0.425,
+            "ParameterValue": 0.718
+          },
+          {
+            "Time": 0.45,
+            "ParameterValue": 0.7387
+          },
+          {
+            "Time": 0.475,
+            "ParameterValue": 0.7598
+          },
+          {
+            "Time": 0.5,
+            "ParameterValue": 0.7813
+          },
+          {
+            "Time": 0.525,
+            "ParameterValue": 0.8028
+          },
+          {
+            "Time": 0.55,
+            "ParameterValue": 0.8244
+          },
+          {
+            "Time": 0.575,
+            "ParameterValue": 0.8457
+          },
+          {
+            "Time": 0.6,
+            "ParameterValue": 0.8666
+          },
+          {
+            "Time": 0.625,
+            "ParameterValue": 0.887
+          },
+          {
+            "Time": 0.65,
+            "ParameterValue": 0.9066
+          },
+          {
+            "Time": 0.675,
+            "ParameterValue": 0.9252
+          },
+          {
+            "Time": 0.7,
+            "ParameterValue": 0.9426
+          },
+          {
+            "Time": 0.725,
+            "ParameterValue": 0.9586
+          },
+          {
+            "Time": 0.75,
+            "ParameterValue": 0.9732
+          },
+          {
+            "Time": 0.775,
+            "ParameterValue": 0.986
+          },
+          {
+            "Time": 0.8,
+            "ParameterValue": 0.9969
+          },
+          {
+            "Time": 0.825,
+            "ParameterValue": 1.0
+          },
+          {
+            "Time": 0.85,
+            "ParameterValue": 1.0
+          },
+          {
+            "Time": 0.875,
+            "ParameterValue": 1.0
+          },
+          {
+            "Time": 0.9,
+            "ParameterValue": 1.0
+          },
+          {
+            "Time": 0.925,
+            "ParameterValue": 1.0
+          },
+          {
+            "Time": 0.95,
+            "ParameterValue": 1.0
+          },
+          {
+            "Time": 0.975,
+            "ParameterValue": 1.0
+          },
+          {
+            "Time": 1.0,
+            "ParameterValue": 1.0
+          },
+          {
+            "Time": 1.025,
+            "ParameterValue": 0.9922
+          },
+          {
+            "Time": 1.05,
+            "ParameterValue": 0.9692
+          },
+          {
+            "Time": 1.075,
+            "ParameterValue": 0.9321
+          },
+          {
+            "Time": 1.1,
+            "ParameterValue": 0.8825
+          },
+          {
+            "Time": 1.125,
+            "ParameterValue": 0.8226
+          },
+          {
+            "Time": 1.15,
+            "ParameterValue": 0.7548
+          },
+          {
+            "Time": 1.175,
+            "ParameterValue": 0.6819
+          },
+          {
+            "Time": 1.2,
+            "ParameterValue": 0.6065
+          },
+          {
+            "Time": 1.225,
+            "ParameterValue": 0.5311
+          },
+          {
+            "Time": 1.25,
+            "ParameterValue": 0.4578
+          },
+          {
+            "Time": 1.275,
+            "ParameterValue": 0.3886
+          },
+          {
+            "Time": 1.3,
+            "ParameterValue": 0.3247
+          },
+          {
+            "Time": 1.325,
+            "ParameterValue": 0.2671
+          },
+          {
+            "Time": 1.35,
+            "ParameterValue": 0.2163
+          },
+          {
+            "Time": 1.375,
+            "ParameterValue": 0.1724
+          },
+          {
+            "Time": 1.4,
+            "ParameterValue": 0.1353
+          },
+          {
+            "Time": 1.425,
+            "ParameterValue": 0.1046
+          },
+          {
+            "Time": 1.45,
+            "ParameterValue": 0.0796
+          },
+          {
+            "Time": 1.475,
+            "ParameterValue": 0.0596
+          },
+          {
+            "Time": 1.5,
+            "ParameterValue": 0.0439
+          }
+        ]
+      }
+    }
+  ]
+}

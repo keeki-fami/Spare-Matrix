@@ -66,6 +66,19 @@ struct ProblemView: View {
                     ProgressView()
                 }
             }
+            .padding()
+            .background {
+                if contentViewModel.nowBackgroundPhase != .phase1 {
+                    Color.white
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                        .overlay() {
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color(red: 217/255, green: 217/255, blue: 217/255), lineWidth: 3)
+                        }
+                } else {
+                    Color.clear
+                }
+            }
             .opacity(contentViewModel.nowProblem == .problem1 ? 1 : 0)
             .offset(y: contentViewModel.nowProblem == .problem1 ? 0 : 20)
             
@@ -121,6 +134,19 @@ struct ProblemView: View {
                     ProgressView()
                 }
             }
+            .padding()
+            .background {
+                if contentViewModel.nowBackgroundPhase != .phase1 {
+                    Color.white
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                        .overlay() {
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color(red: 217/255, green: 217/255, blue: 217/255), lineWidth: 3)
+                        }
+                } else {
+                    Color.clear
+                }
+            }
             .opacity(contentViewModel.nowProblem == .problem2 ? 1 : 0)
             .offset(y: contentViewModel.nowProblem == .problem2 ? 0 : 20)
         }
@@ -146,8 +172,14 @@ struct ContentView: View {
     @Environment(\.scenePhase) var scenePhase
     @State var gameCenterManager = GameCenterManager.shared
     
+    
     var memoButtonAlignment: Alignment {
         settingViewModel.selectedHand == .right ? .bottomTrailing : .bottomLeading
+    }
+    
+    struct comboAnimator {
+        var y: CGFloat = 10.0
+        var opacity: CGFloat = 0
     }
     
     var body: some View {
@@ -155,20 +187,21 @@ struct ContentView: View {
 
         NavigationStack(path: $navigationPath) {
             ZStack {
+//                BubbleBackgroundView(isActive: $contentViewModel.isBubbleAnimation)
+                BackgroundAnimationView(phase: contentViewModel.nowBackgroundPhase)
+                    .ignoresSafeArea()
                 BubbleBackgroundView(isActive: $contentViewModel.isBubbleAnimation)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    
                 VStack(spacing: 0) {
                     Group {
                         VStack {
-                            ProblemView()
+                            ZStack {
+                                ProblemView()
+                            }
                             Rectangle().fill(.clear).frame(width: 10, height: 20)
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .overlay(alignment: .top) {
-                            VStack {
-                                Text("\(contentViewModel.problemTypeString)")
-                                    .foregroundStyle(.gray)
-                            }
-                        }
                         .overlay(alignment: .bottom) {
                             HStack {
                                 Text("\(contentViewModel.userInput.isEmpty ? "   " : contentViewModel.userInput)")
@@ -293,16 +326,29 @@ struct ContentView: View {
                     settingViewModel.fetchProblemType()
                     settingViewModel.fetchHand()
                 }
+                .onDisappear() {
+                    contentViewModel.fromActiveToInactive()
+                }
                 .toolbar{
                     ToolbarItem(placement: .topBarTrailing) {
-                        HStack(alignment: .bottom) {
-                            Text("\(contentViewModel.combo)")
-                                .font(.custom("", size: 20))
-                                .contentTransition(.numericText(value: Double(contentViewModel.combo)))
-                            Text("combo")
+                        VStack(alignment: .trailing, spacing: 0) {
+                            HStack(alignment: .bottom, spacing: 0) {
+                                Text("\(contentViewModel.combo)")
+                                    .font(.custom("", size: 20))
+                                    .contentTransition(.numericText(value: Double(contentViewModel.combo)))
+                                Text("combo")
+                            }
+                            .fixedSize(horizontal: true, vertical: false)
+                            .foregroundStyle(contentViewModel.nowBackgroundPhase == .phase1 ? .black : .white)
+                            HStack {
+                                Text("\(contentViewModel.problemNumber)")
+                                    .font(.caption)
+                                    .foregroundStyle(contentViewModel.nowBackgroundPhase == .phase1 ? .black : .white)
+                                ProgressView(value: contentViewModel.delMeter)
+                                    .tint(contentViewModel.barColor)
+                                    .frame(width: 150, height: 20)
+                            }
                         }
-                        .fixedSize(horizontal: true, vertical: false)
-                        
                         
                     }
                     .sharedBackgroundVisibility(.hidden)
@@ -372,6 +418,29 @@ struct ContentView: View {
                         ExplanationQuizView(lesson: lesson)
                     }
                 }
+            }
+            .overlay(alignment: .top) {
+                Text("\"\(contentViewModel.phrasePer5.nowPhrase)\"")
+                    .italic()
+                    .font(.caption)
+                    .foregroundStyle(contentViewModel.nowBackgroundPhase == .phase1 ? .black : .white)
+                    .padding()
+                    .keyframeAnimator(initialValue: comboAnimator(), trigger: contentViewModel.miniPhraseAnimation, content: {content, value in
+                        content
+                            .opacity(value.opacity)
+                            .offset(y: value.y)
+                    }, keyframes: { _ in
+                        KeyframeTrack(\.opacity) {
+                            LinearKeyframe(1, duration: 0.2)
+                            LinearKeyframe(1, duration: 1.5)
+                            LinearKeyframe(0, duration: 0.2)
+                        }
+                        KeyframeTrack(\.y) {
+                            LinearKeyframe(0, duration: 0.2)
+                            LinearKeyframe(0, duration: 1.5)
+                            LinearKeyframe(10, duration: 0.2)
+                        }
+                    })
             }
         }
     }

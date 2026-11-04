@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		94351611309A353C0056F903 /* NumberPad in Frameworks */ = {isa = PBXBuildFile; productRef = 94351610309A353C0056F903 /* NumberPad */; };
 		9497C9C33072321000D2EBF7 /* GameCenterResources.gamekit in Resources */ = {isa = PBXBuildFile; fileRef = 9497C9C23072321000D2EBF7 /* GameCenterResources.gamekit */; };
-		94C0274E30973BB50053979D /* NumberPad in Frameworks */ = {isa = PBXBuildFile; productRef = 94C0274D30973BB50053979D /* NumberPad */; };
 		94D7C82A3091976100F690F8 /* AppVersionMonitorSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 94D7C8293091976100F690F8 /* AppVersionMonitorSwiftUI */; };
 		94D7C82D3091976F00F690F8 /* FloatingNumbers in Frameworks */ = {isa = PBXBuildFile; productRef = 94D7C82C3091976F00F690F8 /* FloatingNumbers */; };
 /* End PBXBuildFile section */
@@ -55,7 +55,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				94D7C82A3091976100F690F8 /* AppVersionMonitorSwiftUI in Frameworks */,
-				94C0274E30973BB50053979D /* NumberPad in Frameworks */,
+				94351611309A353C0056F903 /* NumberPad in Frameworks */,
 				94D7C82D3091976F00F690F8 /* FloatingNumbers in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -127,7 +127,7 @@
 			packageProductDependencies = (
 				94D7C8293091976100F690F8 /* AppVersionMonitorSwiftUI */,
 				94D7C82C3091976F00F690F8 /* FloatingNumbers */,
-				94C0274D30973BB50053979D /* NumberPad */,
+				94351610309A353C0056F903 /* NumberPad */,
 			);
 			productName = LinearPractice;
 			productReference = 94A12F9F2FE98E1E00CB341C /* LinearPractice.app */;
@@ -164,7 +164,7 @@
 			packageReferences = (
 				94D7C8283091976100F690F8 /* XCRemoteSwiftPackageReference "AppVersionMonitorSwiftUI" */,
 				94D7C82B3091976F00F690F8 /* XCRemoteSwiftPackageReference "FloatingNumbersBackground" */,
-				94C0274C30973BB50053979D /* XCRemoteSwiftPackageReference "NumberPadView" */,
+				9435160F309A353C0056F903 /* XCLocalSwiftPackageReference "../CalculatorView" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 94A12FA02FE98E1E00CB341C /* Products */;
@@ -494,15 +494,14 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		94C0274C30973BB50053979D /* XCRemoteSwiftPackageReference "NumberPadView" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/keeki-fami/NumberPadView";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.2.2;
-			};
+/* Begin XCLocalSwiftPackageReference section */
+		9435160F309A353C0056F903 /* XCLocalSwiftPackageReference "../CalculatorView" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../CalculatorView;
 		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCRemoteSwiftPackageReference section */
 		94D7C8283091976100F690F8 /* XCRemoteSwiftPackageReference "AppVersionMonitorSwiftUI" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SNQ-2001/AppVersionMonitorSwiftUI";
@@ -522,9 +521,8 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		94C0274D30973BB50053979D /* NumberPad */ = {
+		94351610309A353C0056F903 /* NumberPad */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 94C0274C30973BB50053979D /* XCRemoteSwiftPackageReference "NumberPadView" */;
 			productName = NumberPad;
 		};
 		94D7C8293091976100F690F8 /* AppVersionMonitorSwiftUI */ = {

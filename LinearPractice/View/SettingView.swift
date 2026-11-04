@@ -35,6 +35,7 @@ struct SettingView: View {
         .onChange(of: settingViewModel.selectedHand) {
             settingViewModel.changeHand()
         }
+        .navigationTitle("設定")
     }
 }
 

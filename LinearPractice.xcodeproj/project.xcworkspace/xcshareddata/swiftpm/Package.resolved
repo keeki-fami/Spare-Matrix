@@ -1,5 +1,5 @@
 {
-  "originHash" : "eb7c18f34a63c160d7e16d05de05ded761748430d8ffe1c6b0c8ed0045d09532",
+  "originHash" : "c0dd6268cbe6d122ae6677aa5b1f1a7baa0ad6fecaba27d44f3ca81d2786baf5",
   "pins" : [
     {
       "identity" : "appversionmonitorswiftui",
@@ -17,15 +17,6 @@
       "state" : {
         "revision" : "87c590db12d0907b8ab0efce09b62929db6e411e",
         "version" : "0.1.0"
-      }
-    },
-    {
-      "identity" : "numberpadview",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/keeki-fami/NumberPadView",
-      "state" : {
-        "revision" : "5ff4900e70b092a89127da3952bc14dd96c9cce0",
-        "version" : "1.2.3"
       }
     },
     {
