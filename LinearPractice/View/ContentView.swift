@@ -160,7 +160,7 @@ enum SettingDestination: Hashable {
 
 struct ContentView: View {
     @State private var memoView = PKCanvasView()
-    @State private var navigationPath = NavigationPath()
+    @Binding var navigationPath: NavigationPath
     @Environment(ContentViewModel.self) var contentViewModel
     @Environment(SettingViewModel.self) var settingViewModel
     
@@ -185,8 +185,7 @@ struct ContentView: View {
     var body: some View {
         @Bindable var contentViewModel = contentViewModel
 
-        NavigationStack(path: $navigationPath) {
-            ZStack {
+        ZStack {
 //                BubbleBackgroundView(isActive: $contentViewModel.isBubbleAnimation)
                 BackgroundAnimationView(phase: contentViewModel.nowBackgroundPhase)
                     .ignoresSafeArea()
@@ -400,26 +399,8 @@ struct ContentView: View {
                         }
                     }
                 }
-                .navigationDestination(for: SettingDestination.self) { destination in
-                    switch destination {
-                    case .home:
-                        SettingView()
-                    case .problemType:
-                        SettingProblemTypeView()
-                    }
-                }
-                .navigationDestination(for: ExplanationDestination.self) { destination in
-                    switch destination {
-                    case .home:
-                        ExplanationHomeView()
-                    case .lesson(let lesson):
-                        ExplanationLessonView(lesson: lesson)
-                    case .quiz(let lesson):
-                        ExplanationQuizView(lesson: lesson)
-                    }
-                }
-            }
-            .overlay(alignment: .top) {
+        }
+        .overlay(alignment: .top) {
                 Text("\"\(contentViewModel.phrasePer5.nowPhrase)\"")
                     .italic()
                     .font(.caption)
@@ -441,7 +422,6 @@ struct ContentView: View {
                             LinearKeyframe(10, duration: 0.2)
                         }
                     })
-            }
         }
     }
 }
@@ -484,7 +464,7 @@ struct OperatorText: View {
 
 #if DEBUG
 #Preview {
-    ContentView()
+    ContentView(navigationPath: .constant(NavigationPath()))
         .environment(ContentViewModel())
         .environment(SettingViewModel())
     //    buttonTest()
