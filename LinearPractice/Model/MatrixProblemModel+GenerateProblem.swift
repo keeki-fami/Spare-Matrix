@@ -9,8 +9,27 @@ import SwiftUI
 
 // MARK: generate
 extension MatrixProblemModel {
+    
+    private static var problemTypeList: [ProblemType] {
+        do {
+            guard let userdefaults = UserDefaults.standard.string(forKey: "problemTypeList") else {
+                return ProblemType.allCases
+            }
+            let data = userdefaults.data(using: .utf8)!
+            let dic = try JSONDecoder().decode([ProblemType:Bool].self, from: data)
+            return Array(dic.filter{
+                $1
+            }.keys)
+            
+        } catch {
+            print("error")
+            // TODO: show error message
+        }
+        return []
+    }
+    
     static func generate() -> MatrixProblemModel {
-        guard let problemType = ProblemType.allCases.randomElement() else {
+        guard let problemType = problemTypeList.randomElement() else {
             preconditionFailure("At least one problem type must be available.")
         }
 

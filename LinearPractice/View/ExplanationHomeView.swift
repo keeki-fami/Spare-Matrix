@@ -6,6 +6,7 @@ enum ExplanationLesson: String, CaseIterable, Hashable, Identifiable {
     case addition = "行列の足し算"
     case subtraction = "行列の引き算"
     case multiplication = "行列の掛け算"
+    case determinant2 = "行列式 (2行2列)"
     
     var id: Self { self }
     
@@ -13,7 +14,7 @@ enum ExplanationLesson: String, CaseIterable, Hashable, Identifiable {
         switch self {
         case .rowsAndColumns, .elementPosition:
             return "前提知識"
-        case .addition, .subtraction, .multiplication:
+        case .addition, .subtraction, .multiplication, .determinant2:
             return "計算"
         }
     }
@@ -72,6 +73,18 @@ enum ExplanationLesson: String, CaseIterable, Hashable, Identifiable {
                 "tutorial_mul_6",
                 "tutorial_mul_7",
             ]
+        case .determinant2:
+            return [
+                "tutorial_det2_1",
+                "tutorial_det2_2",
+                "tutorial_det2_3",
+                "tutorial_det2_4",
+                "tutorial_det2_5",
+                "tutorial_det2_6",
+                "tutorial_det2_7",
+                "tutorial_det2_8",
+                "tutorial_det2_9",
+            ]
         }
     }
         
@@ -128,6 +141,18 @@ enum ExplanationLesson: String, CaseIterable, Hashable, Identifiable {
                     "図の矢印の順番で、要素同士をかけます。",
                     "出てきた答えを足し合わせると、１行２列の要素が求まります。",
                     "答えは２８です。",
+                ]
+            case .determinant2:
+                return [
+                    "2行2列の行列式の公式は、上の通りとなります。",
+                    "まずは右下がりの方向で掛けます。",
+                    "次に左下がりの方向で掛けます。",
+                    "これらの数を引くと答えが出ます。",
+                    "具体例を見てみましょう。",
+                    "まずは右下がりの方向です。7×7=49です。",
+                    "次に左下がりの方向です。2×1=2です。",
+                    "最後にこれらの数を引きます。",
+                    "答えは47です。"
                 ]
             }
         }

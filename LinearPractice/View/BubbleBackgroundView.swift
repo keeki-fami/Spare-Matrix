@@ -20,23 +20,28 @@ struct BubbleBackgroundView: View {
         GeometryReader { geometry in
             ZStack {
                 Rectangle()
-                    .fill(Color(red: 1, green: 0.82, blue: 0.29))
-                    .keyframeAnimator(initialValue: BackgroundAnimation(), trigger: isActive, content: {content, value in
-                        content
-                            .opacity(value.opacity)
-                    }, keyframes: {_ in
-                        KeyframeTrack(\.opacity) {
-                            LinearKeyframe(1.0, duration: 0.5)
-                            LinearKeyframe(1.0, duration: 1.0)
-                            LinearKeyframe(0.0, duration: 0.5)
-                        }
-                        
-                    })
-                    .ignoresSafeArea()
-                    .animation(.easeInOut(duration: 0.45), value: isActive)
+                    .fill(.clear)
                     .onChange(of: isActive) {
                         makeBubbles()
                     }
+//                Rectangle()
+//                    .fill(Color(red: 1, green: 0.82, blue: 0.29))
+//                    .keyframeAnimator(initialValue: BackgroundAnimation(), trigger: isActive, content: {content, value in
+//                        content
+//                            .opacity(value.opacity)
+//                    }, keyframes: {_ in
+//                        KeyframeTrack(\.opacity) {
+//                            LinearKeyframe(1.0, duration: 0.5)
+//                            LinearKeyframe(1.0, duration: 1.0)
+//                            LinearKeyframe(0.0, duration: 0.5)
+//                        }
+//                        
+//                    })
+//                    .ignoresSafeArea()
+//                    .animation(.easeInOut(duration: 0.45), value: isActive)
+//                    .onChange(of: isActive) {
+//                        makeBubbles()
+//                    }
 
                 ForEach(bubbles) { bubble in
                     RisingBubble(
@@ -89,7 +94,7 @@ private struct RisingBubble: View {
 
     var body: some View {
         Circle()
-            .fill(.white.opacity(0.4))
+            .fill(.yellow)
             .overlay {
                 Circle()
                     .strokeBorder(.white.opacity(0.55), lineWidth: 1.5)

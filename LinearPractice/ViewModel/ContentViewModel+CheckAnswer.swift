@@ -31,16 +31,17 @@ extension ContentViewModel {
                 self.isSuccess2 = true
             }
             
-            hapticGenerator = UINotificationFeedbackGenerator()
-            hapticGenerator?.prepare()
-            hapticGenerator?.notificationOccurred(.success)
-            hapticGenerator = nil
-            
+            let haptics = UserDefaults.standard.bool(forKey: "isHaptics")
+            print(haptics)
             withAnimation(.easeOut(duration: 0.3)) {
                 combo += 1
             }
-            if combo % 10 == 0 && combo != 0 {
-                isBubbleAnimation.toggle()
+            if haptics {
+                if combo == BackgroundAnimationPhase.phase2.rawValue || combo == BackgroundAnimationPhase.phase3.rawValue  || combo == BackgroundAnimationPhase.phase4.rawValue  {
+                    manager.start()
+                } else {
+                    handleHaptics(.success)
+                }
             }
             
             if achievementSet.contains(combo) {
@@ -61,15 +62,35 @@ extension ContentViewModel {
                     }
                     self.generate()
                 }
+            if combo % 5 == 0 && combo != 0 {
+                phrasePer5.randomPhrase()
+                self.miniPhraseAnimation.toggle()
+                self.isBubbleAnimation.toggle()
+            }
 
         } else {
             // GameCenterに送信
             GameCenterManager.shared.submitScore(combo, to: "com.LinearPractice.keeki.WeeklyComboRanking")
-            combo = 0
+            withAnimation {
+                combo = 0
+            }
+            let haptics = UserDefaults.standard.bool(forKey: "isHaptics")
+            if haptics {
+                handleHaptics(.error)
+            }
+            phrasePer5.encouragementPhrase()
+            self.miniPhraseAnimation.toggle()
             failure += 1
             checkAnimation.toggle()
             self.userInput = ""
         }
 
+    }
+    
+    func handleHaptics(_ type: UINotificationFeedbackGenerator.FeedbackType) {
+        hapticGenerator = UINotificationFeedbackGenerator()
+        hapticGenerator?.prepare()
+        hapticGenerator?.notificationOccurred(type)
+        hapticGenerator = nil
     }
 }

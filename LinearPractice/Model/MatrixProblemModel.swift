@@ -12,7 +12,25 @@ enum ProblemType: CaseIterable {
     case determinant
 }
 
+extension ProblemType: Codable {}
+extension ProblemType: Hashable {
+    var str: String {
+        switch self {
+        case .add: return "add"
+        case .sub: return "sub"
+        case .mul: return "mul"
+        case .determinant: return "determinant"
+        }
+    }
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(str)
+        // secretCodeは含めない
+    }
+}
+
 extension MatrixProblemModel: Identifiable {}
+
+
 
 
 struct MatrixProblemModel {

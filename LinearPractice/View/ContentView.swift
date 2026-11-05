@@ -18,8 +18,11 @@ extension Array {
 }
 
 struct ProblemView: View {
-    @Binding var contentViewModel: ContentViewModel
+    @Environment(ContentViewModel.self) var contentViewModel
+
     var body: some View {
+        @Bindable var contentViewModel = contentViewModel
+
         ZStack {
             // 一つ目
             VStack {
@@ -61,6 +64,19 @@ struct ProblemView: View {
                     }
                 } else {
                     ProgressView()
+                }
+            }
+            .padding()
+            .background {
+                if contentViewModel.nowBackgroundPhase != .phase1 {
+                    Color.white
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                        .overlay() {
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color(red: 217/255, green: 217/255, blue: 217/255), lineWidth: 3)
+                        }
+                } else {
+                    Color.clear
                 }
             }
             .opacity(contentViewModel.nowProblem == .problem1 ? 1 : 0)
@@ -118,16 +134,35 @@ struct ProblemView: View {
                     ProgressView()
                 }
             }
+            .padding()
+            .background {
+                if contentViewModel.nowBackgroundPhase != .phase1 {
+                    Color.white
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                        .overlay() {
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color(red: 217/255, green: 217/255, blue: 217/255), lineWidth: 3)
+                        }
+                } else {
+                    Color.clear
+                }
+            }
             .opacity(contentViewModel.nowProblem == .problem2 ? 1 : 0)
             .offset(y: contentViewModel.nowProblem == .problem2 ? 0 : 20)
         }
     }
 }
 
+enum SettingDestination: Hashable {
+    case home
+    case problemType
+}
+
 struct ContentView: View {
-    @State var contentViewModel: ContentViewModel = .init()
     @State private var memoView = PKCanvasView()
     @State private var navigationPath = NavigationPath()
+    @Environment(ContentViewModel.self) var contentViewModel
+    @Environment(SettingViewModel.self) var settingViewModel
     
     @AppStorage("failure") var failure: Int = 0
     @AppStorage("success") var success: Int = 0
@@ -137,23 +172,36 @@ struct ContentView: View {
     @Environment(\.scenePhase) var scenePhase
     @State var gameCenterManager = GameCenterManager.shared
     
+    
+    var memoButtonAlignment: Alignment {
+        settingViewModel.selectedHand == .right ? .bottomTrailing : .bottomLeading
+    }
+    
+    struct comboAnimator {
+        var y: CGFloat = 10.0
+        var opacity: CGFloat = 0
+    }
+    
     var body: some View {
+        @Bindable var contentViewModel = contentViewModel
+
         NavigationStack(path: $navigationPath) {
             ZStack {
+//                BubbleBackgroundView(isActive: $contentViewModel.isBubbleAnimation)
+                BackgroundAnimationView(phase: contentViewModel.nowBackgroundPhase)
+                    .ignoresSafeArea()
                 BubbleBackgroundView(isActive: $contentViewModel.isBubbleAnimation)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    
                 VStack(spacing: 0) {
                     Group {
                         VStack {
-                            ProblemView(contentViewModel: $contentViewModel)
+                            ZStack {
+                                ProblemView()
+                            }
                             Rectangle().fill(.clear).frame(width: 10, height: 20)
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .overlay(alignment: .top) {
-                            VStack {
-                                Text("\(contentViewModel.problemTypeString)")
-                                    .foregroundStyle(.gray)
-                            }
-                        }
                         .overlay(alignment: .bottom) {
                             HStack {
                                 Text("\(contentViewModel.userInput.isEmpty ? "   " : contentViewModel.userInput)")
@@ -180,7 +228,7 @@ struct ContentView: View {
                                 
                             }
                         }
-                        .overlay(alignment: .bottomTrailing) {
+                        .overlay(alignment: memoButtonAlignment) {
                             Button(action: {
                                 
                             }, label: {
@@ -209,7 +257,8 @@ struct ContentView: View {
                     
                     
                     if contentViewModel.isKeyboard {
-                        NumberPadView("submit", text: $contentViewModel.userInput, action: {            Task {
+                        NumberPadView("submit", text: $contentViewModel.userInput, isHaptic: settingViewModel.isOn, action: {
+                            Task {
                                 await contentViewModel.checkAnswer()
                             }
                         })
@@ -244,6 +293,7 @@ struct ContentView: View {
                     case .updateAvailable:
                         contentViewModel.updateAlert = true
                     default:
+                        print(status)
                         contentViewModel.updateAlert = false
                     }
                     
@@ -272,17 +322,33 @@ struct ContentView: View {
                     } else {
                         contentViewModel.appear()
                     }
+                    
+                    settingViewModel.fetchProblemType()
+                    settingViewModel.fetchHand()
+                }
+                .onDisappear() {
+                    contentViewModel.fromActiveToInactive()
                 }
                 .toolbar{
                     ToolbarItem(placement: .topBarTrailing) {
-                        HStack(alignment: .bottom) {
-                            Text("\(contentViewModel.combo)")
-                                .font(.custom("", size: 20))
-                                .contentTransition(.numericText(value: Double(contentViewModel.combo)))
-                            Text("combo")
+                        VStack(alignment: .trailing, spacing: 0) {
+                            HStack(alignment: .bottom, spacing: 0) {
+                                Text("\(contentViewModel.combo)")
+                                    .font(.custom("", size: 20))
+                                    .contentTransition(.numericText(value: Double(contentViewModel.combo)))
+                                Text("combo")
+                            }
+                            .fixedSize(horizontal: true, vertical: false)
+                            .foregroundStyle(contentViewModel.nowBackgroundPhase == .phase1 ? .black : .white)
+                            HStack {
+                                Text("\(contentViewModel.problemNumber)")
+                                    .font(.caption)
+                                    .foregroundStyle(contentViewModel.nowBackgroundPhase == .phase1 ? .black : .white)
+                                ProgressView(value: contentViewModel.delMeter)
+                                    .tint(contentViewModel.barColor)
+                                    .frame(width: 150, height: 20)
+                            }
                         }
-                        .fixedSize(horizontal: true, vertical: false)
-                        
                         
                     }
                     .sharedBackgroundVisibility(.hidden)
@@ -295,6 +361,7 @@ struct ContentView: View {
                                         gameCenterManager.submitScore(contentViewModel.combo, to: "com.LinearPractice.keekifami.WeeklyComboRanking")
                                         UserDefaults.standard.set(contentViewModel.success, forKey: "success")
                                         UserDefaults.standard.set(contentViewModel.combo, forKey: "combo")
+                                        
                                     }
                             }, label: {
                                 Label("プロフィール", systemImage: "person")
@@ -309,6 +376,12 @@ struct ContentView: View {
                                 navigationPath.append(ExplanationDestination.home)
                             } label: {
                                 Label("チュートリアル", systemImage: "book.pages")
+                            }
+                            
+                            Button {
+                                navigationPath.append(SettingDestination.home)
+                            } label : {
+                                Label("設定", systemImage: "gearshape")
                             }
                             
                             Button(action: {
@@ -327,6 +400,14 @@ struct ContentView: View {
                         }
                     }
                 }
+                .navigationDestination(for: SettingDestination.self) { destination in
+                    switch destination {
+                    case .home:
+                        SettingView()
+                    case .problemType:
+                        SettingProblemTypeView()
+                    }
+                }
                 .navigationDestination(for: ExplanationDestination.self) { destination in
                     switch destination {
                     case .home:
@@ -338,11 +419,32 @@ struct ContentView: View {
                     }
                 }
             }
+            .overlay(alignment: .top) {
+                Text("\"\(contentViewModel.phrasePer5.nowPhrase)\"")
+                    .italic()
+                    .font(.caption)
+                    .foregroundStyle(contentViewModel.nowBackgroundPhase == .phase1 ? .black : .white)
+                    .padding()
+                    .keyframeAnimator(initialValue: comboAnimator(), trigger: contentViewModel.miniPhraseAnimation, content: {content, value in
+                        content
+                            .opacity(value.opacity)
+                            .offset(y: value.y)
+                    }, keyframes: { _ in
+                        KeyframeTrack(\.opacity) {
+                            LinearKeyframe(1, duration: 0.2)
+                            LinearKeyframe(1, duration: 1.5)
+                            LinearKeyframe(0, duration: 0.2)
+                        }
+                        KeyframeTrack(\.y) {
+                            LinearKeyframe(0, duration: 0.2)
+                            LinearKeyframe(0, duration: 1.5)
+                            LinearKeyframe(10, duration: 0.2)
+                        }
+                    })
+            }
         }
     }
-    
 }
-
 
 
 struct SubButtonStyle: ButtonStyle {
@@ -383,6 +485,8 @@ struct OperatorText: View {
 #if DEBUG
 #Preview {
     ContentView()
+        .environment(ContentViewModel())
+        .environment(SettingViewModel())
     //    buttonTest()
 }
 #endif
