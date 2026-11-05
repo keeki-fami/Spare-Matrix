@@ -39,56 +39,111 @@ enum CardColor {
     }
 }
 
+struct GridBackground: View {
+    // 格子の間隔
+    var gridSize: CGFloat = 20
+
+    // 格子線の色
+    var gridColor: Color = Color(
+        red: 201 / 255,
+        green: 221 / 255,
+        blue: 240 / 255
+    )
+
+    // 背景色
+    var backgroundColor: Color = Color(
+        red: 252 / 255,
+        green: 253 / 255,
+        blue: 254 / 255
+    )
+
+    var body: some View {
+        Canvas { context, size in
+            var path = Path()
+
+            // 縦線
+            stride(from: 0, through: size.width, by: gridSize)
+                .forEach { x in
+                    path.move(to: CGPoint(x: x, y: 0))
+                    path.addLine(
+                        to: CGPoint(x: x, y: size.height)
+                    )
+                }
+
+            // 横線
+            stride(from: 0, through: size.height, by: gridSize)
+                .forEach { y in
+                    path.move(to: CGPoint(x: 0, y: y))
+                    path.addLine(
+                        to: CGPoint(x: size.width, y: y)
+                    )
+                }
+
+            context.stroke(
+                path,
+                with: .color(gridColor),
+                lineWidth: 0.8
+            )
+        }
+        .background(backgroundColor)
+        .ignoresSafeArea()
+    }
+}
+
+
 struct HomeView: View {
     var body: some View {
-        VStack {
-//            Spacer()
-            Rectangle()
-                .fill(.blue)
-                .frame(height: 80)
-                .overlay() {
-                    HStack {
-                        Text("Home")
-                            .font(.largeTitle)
-                            .fontWeight(.bold)
-                            .foregroundStyle(.white)
-                            .padding([.leading], 45)
-                        Spacer()
+        ZStack {
+            GridBackground()
+            VStack {
+                //            Spacer()
+                Rectangle()
+                    .fill(.blue)
+                    .frame(height: 80)
+                    .overlay() {
+                        HStack {
+                            Text("Home")
+                                .font(.largeTitle)
+                                .fontWeight(.bold)
+                                .foregroundStyle(.white)
+                                .padding([.leading], 45)
+                            Spacer()
+                        }
                     }
+                Spacer()
+                CardView(
+                    title: "無限行列計算モード",
+                    description: "行列を無限に生成\n満足がいくまで練習",
+                    type: .infinity
+                )
+                .frame(width: 350, height: 170)
+                CardView(
+                    title: "タイムアタック",
+                    description: "行列を無限に生成\n満足がいくまで練習",
+                    type: .timeattack
+                )
+                .frame(width: 350, height: 170)
+                HStack {
+                    Spacer()
+                    MiniCardView(
+                        title: "ランキング",
+                        mark: "🏆",
+                        type: .ranking
+                    )
+                    .frame(width: 170, height: 100)
+                    //                Spacer()
+                    MiniCardView(
+                        title: "解説",
+                        mark: "📚",
+                        type: .tutorial
+                    )
+                    .frame(width: 170, height: 100)
+                    Spacer()
                 }
-            Spacer()
-            CardView(
-                title: "無限行列計算モード",
-                description: "行列を無限に生成\n満足がいくまで練習",
-                type: .infinity
-            )
-                .frame(width: 350, height: 170)
-            CardView(
-                title: "タイムアタック",
-                description: "行列を無限に生成\n満足がいくまで練習",
-                type: .timeattack
-            )
-                .frame(width: 350, height: 170)
-            HStack {
                 Spacer()
-                MiniCardView(
-                    title: "ランキング",
-                    mark: "🏆",
-                    type: .ranking
-                )
-                    .frame(width: 170, height: 100)
-//                Spacer()
-                MiniCardView(
-                    title: "解説",
-                    mark: "📚",
-                    type: .tutorial
-                )
-                    .frame(width: 170, height: 100)
-                Spacer()
+                // AdMob
+                
             }
-            Spacer()
-            // AdMob
-            
         }
     }
 }
