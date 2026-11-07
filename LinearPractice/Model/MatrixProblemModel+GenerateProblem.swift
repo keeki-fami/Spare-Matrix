@@ -28,10 +28,17 @@ extension MatrixProblemModel {
         return []
     }
     
-    static func generate() -> MatrixProblemModel {
-        guard let problemType = problemTypeList.randomElement() else {
-            preconditionFailure("At least one problem type must be available.")
+    static func generate(type: ProblemType? = nil) -> MatrixProblemModel {
+        var problemType: ProblemType
+        if let p = type {
+            problemType = p
+        } else {
+            guard let problemT = problemTypeList.randomElement() else {
+                preconditionFailure("At least one problem type must be available.")
+            }
+            problemType = problemT
         }
+            
 
         var leftRows: Int = 0
         var leftColumns: Int = 0

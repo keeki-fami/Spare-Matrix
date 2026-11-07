@@ -26,6 +26,14 @@ extension ProblemType: Hashable {
         hasher.combine(str)
         // secretCodeは含めない
     }
+    var str_ja: String {
+        switch self {
+        case .add: return "足し算"
+        case .sub: return "引き算"
+        case .mul: return "掛け算"
+        case .determinant: return "行列式"
+        }
+    }
 }
 
 extension MatrixProblemModel: Identifiable {}

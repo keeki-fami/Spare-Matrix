@@ -8,88 +8,13 @@
 
 import SwiftUI
 import NumberPad
+import PencilKit
 
 enum TimeAttackPhase: Equatable {
     case choose
     case playing
     case result
     case white
-}
-
-@Observable
-class TimeAttackViewModel {
-    var nowPhase: TimeAttackPhase = .choose
-    var remainingSeconds = 60
-    private var timerTask: Task<Void, Never>?
-    var whiteOpacity = 0
-    var playingPhase: PlayingPhase = .before
-    
-    public enum PlayingPhase {
-        case before
-        case playing
-        case done
-    }
-    
-    var countdown = 3
-    var countdownTimer: Timer?
-    
-    enum whietOpacity: Int {
-        case visible = 1
-        case invisible = 0
-        
-        mutating func toggle() {
-            switch self {
-            case .visible:
-                self = .invisible
-            case .invisible:
-                self = .visible
-            }
-        }
-    }
-    
-    func start_count() {
-        nowPhase = .playing
-        remainingSeconds = 60
-        countdown = 3
-        countdownTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
-            if self.countdown > 0 {
-                print(self.countdown)
-                self.countdown -= 1
-            } else {
-                self.countdownTimer?.invalidate()
-                self.start()
-            }
-        }
-    }
-
-    func start() {
-        
-        timerTask?.cancel()
-
-        timerTask = Task { @MainActor [weak self] in
-            for _ in 0..<60 {
-                do {
-                    try await Task.sleep(nanoseconds: 1_000_000_000)
-                } catch {
-                    return
-                }
-
-                guard let self, !Task.isCancelled, self.nowPhase == .playing else {
-                    return
-                }
-                self.remainingSeconds -= 1
-            }
-
-            guard let self, self.nowPhase == .playing else { return }
-            self.nowPhase = .result
-        }
-    }
-    
-
-    func stop() {
-        timerTask?.cancel()
-        timerTask = nil
-    }
 }
 
 struct TimeAttackView: View {
@@ -102,7 +27,8 @@ struct TimeAttackView: View {
                 switch timeAttackViewModel.nowPhase {
                 case .choose:
                     TimeAttackChooseView(
-                        opacity: $opacity
+                        opacity: $opacity,
+                        timeAttackViewModel: timeAttackViewModel
                     ) {
                         contentViewModel.success = 0
                         contentViewModel.failure = 0
@@ -111,7 +37,6 @@ struct TimeAttackView: View {
                         contentViewModel.isSuccess1 = false
                         contentViewModel.isSuccess2 = false
                         contentViewModel.initGenerate()
-                        timeAttackViewModel.start_count()
                     }
                     .border(.red)
                 case .playing:
@@ -131,17 +56,18 @@ struct TimeAttackView: View {
             .onDisappear {
                 timeAttackViewModel.stop()
             }
-            .overlay {
-                Color.white
-                    .opacity(opacity)
-                    .ignoresSafeArea()
-                    .allowsHitTesting(false)
-            }
+//            .overlay {
+//                Color.white
+//                    .opacity(opacity)
+//                    .ignoresSafeArea()
+//                    .allowsHitTesting(false)
+//            }
     }
 }
 
 struct TimeAttackChooseView: View {
     @Binding var opacity: Double
+    var timeAttackViewModel: TimeAttackViewModel
     let onStart: () -> Void
 
     var body: some View {
@@ -187,12 +113,7 @@ struct TimeAttackChooseView: View {
                     .padding([.leading, .trailing], 24)
                 
                 Button(action: {
-                    withAnimation {
-                        opacity = 1
-                    } completion: {
-                        onStart()
-                        print("完了")
-                    }
+                    timeAttackViewModel.moveWithWhiteSpace(after: .playing)
                 }, label: {
                     RoundedRectangle(cornerRadius: 20)
                         .fill(
@@ -250,56 +171,158 @@ struct TimeAttackChooseView: View {
     }
 }
 
+struct TimeAttackPlayingBeforeView: View {
+    var timeAttackViewModel: TimeAttackViewModel
+    @State private var isPushed: Bool = false
+    var body: some View {
+        VStack {
+            if !isPushed {
+                Text("ボタンを押すと開始します。")
+                Button("開始する。") {
+                    timeAttackViewModel.start_count()
+                    isPushed = true
+                }
+            } else {
+                Text("\(timeAttackViewModel.countdown)")
+            }
+        }
+    }
+}
+
 struct TimeAttackPlayingView: View {
-    @Bindable var timeAttackViewModel: TimeAttackViewModel
+    var timeAttackViewModel: TimeAttackViewModel
+    @State private var memoView = PKCanvasView()
     @Binding var opacity: Double
     @Environment(ContentViewModel.self) private var contentViewModel
     @Environment(SettingViewModel.self) private var settingViewModel
+    var memoButtonAlignment: Alignment {
+        settingViewModel.selectedHand == .right ? .bottomTrailing : .bottomLeading
+    }
 
     var body: some View {
         @Bindable var contentViewModel = contentViewModel
-
-        ZStack {
-            BackgroundAnimationView(phase: contentViewModel.nowBackgroundPhase)
-                .ignoresSafeArea()
-            BubbleBackgroundView(isActive: $contentViewModel.isBubbleAnimation)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-            VStack(spacing: 0) {
-                ProblemView()
+            ZStack {
+                BackgroundAnimationView(phase: contentViewModel.nowBackgroundPhase)
+                    .ignoresSafeArea()
+                BubbleBackgroundView(isActive: $contentViewModel.isBubbleAnimation)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                NumberPadView(
-                    "submit",
-                    text: $contentViewModel.userInput,
-                    isHaptic: settingViewModel.isOn,
-                    action: {
-                        Task {
-                            await contentViewModel.checkAnswer()
+                VStack(spacing: 0) {
+                    // TODO: phaseによって変わる。
+                    Group {
+                        switch timeAttackViewModel.playingPhase {
+                        case .before:
+                            TimeAttackPlayingBeforeView(
+                                timeAttackViewModel: timeAttackViewModel
+                            )
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        case .playing, .done:
+                            ProblemView()
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
                         }
                     }
-                )
+                        .overlay(alignment: .bottom) {
+                            HStack {
+                                Text("\(contentViewModel.userInput.isEmpty ? "   " : contentViewModel.userInput)")
+                                    .font(Font.title)
+                                    .background(Color(red: 217/255, green: 217/255, blue: 217/255))
+                            }
+                            .frame(maxWidth: .infinity, maxHeight: 40)
+                            .padding()
+                            .keyframeAnimator(initialValue: 0.0, trigger: contentViewModel.checkAnimation) { content, value in
+                                content.offset(x: value)
+                            } keyframes: { _ in
+                                KeyframeTrack {
+                                    MoveKeyframe(10.0)
+                                    LinearKeyframe(-10.0, duration: 0.1)
+                                    LinearKeyframe(5.0, duration: 0.1)
+                                    LinearKeyframe(-5.0, duration: 0.1)
+                                    LinearKeyframe(2.0, duration: 0.1)
+                                    LinearKeyframe(-2.0, duration: 0.1)
+                                    LinearKeyframe(1.0, duration: 0.1)
+                                    LinearKeyframe(-1.0, duration: 0.1)
+                                    LinearKeyframe(0.5, duration: 0.1)
+                                    LinearKeyframe(-0.5, duration: 0.1)
+                                }
+                                
+                            }
+                        }
+                        .overlay(alignment: memoButtonAlignment) {
+                            Button(action: {
+                                
+                            }, label: {
+                                ZStack {
+                                    Rectangle()
+                                        .fill(Color(red: 217/255, green: 217/255, blue: 217/255))
+                                        .frame(width: 40, height: 40)
+                                    Image(systemName: contentViewModel.isKeyboard ? "pencil.tip" : "plus.forwardslash.minus")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 20, height: 20)
+                                }
+                            })
+                            .buttonStyle(SubButtonStyle(onTouchUp: {
+                                contentViewModel.togglePadView()
+                                if contentViewModel.isKeyboard {
+                                    memoView.drawing = PKDrawing()
+                                }
+                            }))
+                            .padding()
+                        }
+                    ZStack {
+                        if contentViewModel.isKeyboard {
+                            NumberPadView("submit", text: $contentViewModel.userInput, isHaptic: settingViewModel.isOn, action: {
+                                Task {
+                                    await contentViewModel.checkAnswer()
+                                }
+                            })
+                        } else {
+                            MemoView(memoView: $memoView, isKeyboard: $contentViewModel.isKeyboard)
+                                .shadow(color: .gray.opacity(0.25), radius: 10, x: 0, y: -10)
+                        }
+                        
+                        if timeAttackViewModel.playingPhase == .before {
+                            Rectangle()
+                                .fill(.black.opacity(0.5))
+                                .ignoresSafeArea()
+                        }
+                    }
+                    
+                }
+                .overlay(alignment: .topLeading) {
+                    Text("正解 \(contentViewModel.success)")
+                        .font(.headline)
+                        .foregroundStyle(contentViewModel.nowBackgroundPhase == .phase1 ? .black : .white)
+                        .padding()
+                }
+                .overlay(alignment: .topTrailing) {
+                    Text("残り \(timeAttackViewModel.remainingSeconds) 秒")
+                        .font(.headline)
+                        .foregroundStyle(contentViewModel.nowBackgroundPhase == .phase1 ? .black : .white)
+                        .padding()
+                }
+                
+                if timeAttackViewModel.playingPhase == .done {
+                    Rectangle()
+                        .fill(.black.opacity(0.5))
+                        .overlay() {
+                            Text("終了！")
+                                .foregroundStyle(.white)
+                        }
+                        .ignoresSafeArea()
+                }
+                
             }
-            .overlay(alignment: .topLeading) {
-                Text("正解 \(contentViewModel.success)")
-                    .font(.headline)
-                    .foregroundStyle(contentViewModel.nowBackgroundPhase == .phase1 ? .black : .white)
-                    .padding()
-            }
-            .overlay(alignment: .topTrailing) {
-                Text("残り \(timeAttackViewModel.remainingSeconds) 秒")
-                    .font(.headline)
-                    .foregroundStyle(contentViewModel.nowBackgroundPhase == .phase1 ? .black : .white)
-                    .padding()
-            }
-        }
-        .onAppear() {
-            if opacity == 1 {
-                withAnimation {
-                    opacity = 0
+            .onAppear() {
+                print("表示される")
+                if opacity == 1 {
+                    withAnimation {
+                        opacity = 0
+                    }
                 }
             }
-        }
+            .navigationBarBackButtonHidden(true)
+
     }
 }
 
@@ -324,49 +347,35 @@ struct TimeAttackResultView: View {
                     }
 
                 Spacer()
-
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(
-                        LinearGradient(
-                            colors: [CardColor.timeattack.topColor, CardColor.timeattack.bottomColor],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-                    .overlay {
-                        VStack(spacing: 12) {
-                            Text("正解数")
-                                .font(.title2)
-                            Text("\(correctCount)")
-                                .font(.system(size: 64, weight: .bold, design: .rounded))
-                            Text("問")
-                                .font(.title2)
-                        }
-                        .foregroundStyle(.white)
-                    }
-                    .frame(maxWidth: 420)
-                    .frame(height: 240)
-
-                Button {
-                    dismiss()
-                } label: {
-                    Text("ホームに戻る")
-                        .font(.title3.bold())
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: 420)
-                        .frame(height: 60)
-                        .background(.blue)
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                
+                Text("score")
+                Text("\(correctCount)")
+                Button("Xでスコアを共有") {
+                    shareOnTwitter(correctCount: correctCount)
                 }
-                .buttonStyle(.plain)
+                Button("ホームに戻る") {
+                    dismiss()
+                }
+
 
                 Spacer()
             }
-            .padding(.horizontal, 24)
+        }
+        .navigationBarBackButtonHidden(true)
+    }
+    func shareOnTwitter(correctCount: Int) {
+        let text = String("✨行列計算 タイムアタックチャレンジ✨ \n\n 引き算部門：score \(correctCount)\n\nアプリ無限行列計算を今すぐインストール\n\nhttps://apps.apple.com/jp/app/%E7%84%A1%E9%99%90%E8%A1%8C%E5%88%97%E8%A8%88%E7%AE%97/id6785983550")
+        let encodedText = text.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        
+        if let encodedText = encodedText, let url = URL(string: "https://x.com/compose/post?text=\(encodedText)") {
+            UIApplication.shared.open(url)
         }
     }
 }
 
 #Preview {
     TimeAttackView()
+}
+#Preview {
+    TimeAttackResultView(correctCount: 0)
 }

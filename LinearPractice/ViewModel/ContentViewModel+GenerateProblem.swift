@@ -30,24 +30,4 @@ extension ContentViewModel {
         }
             
     }
-    
-    func initGenerate() {
-        withAnimation {
-            self.matrixProblem1 = MatrixProblemModel.generate()
-            self.matrixProblem2 = MatrixProblemModel.generate()
-        }
-        userInput = ""
-    }
-
-    // 行列生成時の処理を担当。
-    func generate() {
-        withAnimation {
-            if nowProblem == .problem2 {
-                self.matrixProblem1 = MatrixProblemModel.generate()
-            } else {
-                self.matrixProblem2 = MatrixProblemModel.generate()
-            }
-        }
-        userInput = ""
-    }
 }

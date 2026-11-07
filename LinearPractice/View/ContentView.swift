@@ -171,6 +171,7 @@ struct ContentView: View {
     
     @Environment(\.scenePhase) var scenePhase
     @State var gameCenterManager = GameCenterManager.shared
+    @State private var isUpdate = false
     
     
     var memoButtonAlignment: Alignment {
@@ -268,7 +269,7 @@ struct ContentView: View {
                 }
                 .alert(
                     "最新版があります",
-                    isPresented: $contentViewModel.updateAlert
+                    isPresented: $isUpdate
                 ) {
                     Button(role: .cancel) {
                         
@@ -290,10 +291,10 @@ struct ContentView: View {
                 .appVersionMonitor(id: 6785983550) { status in
                     switch status {
                     case .updateAvailable:
-                        contentViewModel.updateAlert = true
+                        isUpdate = true
                     default:
                         print(status)
-                        contentViewModel.updateAlert = false
+                        isUpdate = false
                     }
                     
                 }
