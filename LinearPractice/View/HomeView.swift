@@ -182,6 +182,15 @@ struct HomeView: View {
                 // AdMob
                 
             }
+            .onAppear() {
+                gameCenterManager.initializeLocalPlayer()
+                
+                if gameCenterManager.isAuthenticated {
+                    Task {
+                        await gameCenterManager.checkDuration()
+                    }
+                }
+            }
         }
     }
 }

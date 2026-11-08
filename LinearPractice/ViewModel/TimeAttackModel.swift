@@ -9,18 +9,65 @@ import SwiftUI
 
 @Observable
 class TimeAttackViewModel: MatrixManager {
-    private let gameTime = 10
+    var genProblemType: ProblemType = .add
+    private let gameTime = 60
     var nowPhase: TimeAttackPhase = .choose
     var remainingSeconds = 60
     private var timerTask: Task<Void, Never>?
     var whiteOpacity = 0
     var playingPhase: PlayingPhase = .before
+    var score = 0
+    
+    
+    var timeAttackLeaderboard: String {
+        switch genProblemType {
+        case .add:
+            "com.LinearPractice.TimeAttack.add"
+        case .sub:
+            "com.LinearPractice.TimeAttack.sub"
+        case .mul:
+            "com.LinearPractice.TimeAttack.mul"
+        default:
+            ""
+        }
+    }
+    
+    override init() {
+        print("be initialized")
+    }
+    
+    override func initGenerate(type: ProblemType? = nil) {
+        super.initGenerate(type: genProblemType)
+        print("called initGenerate by timeAtackViewModel: \(type)")
+        print("\(String(describing: super.matrixProblem1?.problemType))")
+        print("\(String(describing: super.matrixProblem2?.problemType))")
+    }
+    
+    override func generate(type: ProblemType? = nil) {
+        super.generate(type: genProblemType)
+        print("called generate by timeAtackViewModel: \(type)")
+        print("\(String(describing: super.matrixProblem1?.problemType))")
+        print("\(String(describing: super.matrixProblem2?.problemType))")
+    }
     
     override func checkAnswer() async {
         await super.checkAnswer()
         
         if isAnswer {
+            
+            if let ans = Int(self.userInput) {
+                if genProblemType == .sub {
+                    self.score += max(abs(ans), 3)
+                } else if genProblemType == .mul {
+                    self.score += max(abs(ans), 3)
+                } else {
+                    self.score += ans
+                }
+                
+            }
+            
             self.userInput = ""
+            
             if nowProblem == .problem1 {
                 self.isSuccess1 = true
             } else {
@@ -44,7 +91,7 @@ class TimeAttackViewModel: MatrixManager {
                         self.isSuccess1 = false
                     }
                     
-                    self.generate()
+                    self.generate(type: self.genProblemType)
                 }
 
         } else {
@@ -142,5 +189,10 @@ class TimeAttackViewModel: MatrixManager {
     func stop() {
         timerTask?.cancel()
         timerTask = nil
+    }
+    
+    func sendToLeaderboard() {
+        print("send to timeAttackLeaderboard: \(timeAttackLeaderboard)")
+        GameCenterManager.shared.submitScore(self.score, to: timeAttackLeaderboard)
     }
 }

@@ -46,9 +46,10 @@ class MatrixManager {
     }
     
     func initGenerate(type: ProblemType? = nil) {
+        print("親クラスのinitGenerateが呼ばれました")
         withAnimation {
-            self.matrixProblem1 = MatrixProblemModel.generate(type: problemType)
-            self.matrixProblem2 = MatrixProblemModel.generate(type: problemType)
+            self.matrixProblem1 = MatrixProblemModel.generate(type: type)
+            self.matrixProblem2 = MatrixProblemModel.generate(type: type)
         }
         self.userInput = ""
     }
@@ -56,9 +57,9 @@ class MatrixManager {
     func generate(type: ProblemType? = nil) {
         withAnimation {
             if nowProblem == .problem2 {
-                self.matrixProblem1 = MatrixProblemModel.generate(type: problemType)
+                self.matrixProblem1 = MatrixProblemModel.generate(type: type)
             } else {
-                self.matrixProblem2 = MatrixProblemModel.generate(type: problemType)
+                self.matrixProblem2 = MatrixProblemModel.generate(type: type)
             }
         }
         userInput = ""

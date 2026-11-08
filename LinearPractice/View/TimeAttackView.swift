@@ -19,7 +19,6 @@ enum TimeAttackPhase: Equatable {
 
 struct TimeAttackView: View {
     @State private var timeAttackViewModel = TimeAttackViewModel()
-    @State private var contentViewModel = ContentViewModel()
     @State private var opacity: Double = 0
 
     var body: some View {
@@ -30,13 +29,6 @@ struct TimeAttackView: View {
                         opacity: $opacity,
                         timeAttackViewModel: timeAttackViewModel
                     ) {
-                        contentViewModel.success = 0
-                        contentViewModel.failure = 0
-                        contentViewModel.combo = 0
-                        contentViewModel.nowProblem = .problem1
-                        contentViewModel.isSuccess1 = false
-                        contentViewModel.isSuccess2 = false
-                        contentViewModel.initGenerate()
                     }
                     .border(.red)
                 case .playing:
@@ -45,12 +37,12 @@ struct TimeAttackView: View {
                         opacity: $opacity
                     )
                 case .result:
-                    TimeAttackResultView(correctCount: contentViewModel.success)
+                    TimeAttackResultView(
+                        timeAttackViewModel: timeAttackViewModel)
                 case .white:
                     EmptyView()
                 }
             }
-            .environment(contentViewModel)
             .navigationTitle(timeAttackViewModel.nowPhase == .result ? "結果" : "")
             .navigationBarTitleDisplayMode(.inline)
             .onDisappear {
@@ -87,7 +79,12 @@ struct TimeAttackChooseView: View {
                     }
 
                 Spacer()
-                Button(action: onStart, label: {
+                Button(action: {
+                    timeAttackViewModel.genProblemType = .add
+                    print("addを渡してinitGenerateします。")
+                    timeAttackViewModel.initGenerate(type: .add)
+                    timeAttackViewModel.moveWithWhiteSpace(after: .playing)
+                },label: {
                     RoundedRectangle(cornerRadius: 20)
                         .fill(
                             LinearGradient(
@@ -113,6 +110,8 @@ struct TimeAttackChooseView: View {
                     .padding([.leading, .trailing], 24)
                 
                 Button(action: {
+                    timeAttackViewModel.genProblemType = .sub
+                    timeAttackViewModel.initGenerate(type: .sub)
                     timeAttackViewModel.moveWithWhiteSpace(after: .playing)
                 }, label: {
                     RoundedRectangle(cornerRadius: 20)
@@ -138,7 +137,11 @@ struct TimeAttackChooseView: View {
                     .frame(maxWidth: 420)
                     .frame(height: 150)
                     .padding([.leading, .trailing], 24)
-                Button(action: onStart, label: {
+                Button(action: {
+                    timeAttackViewModel.genProblemType = .mul
+                    timeAttackViewModel.initGenerate(type: .mul)
+                    timeAttackViewModel.moveWithWhiteSpace(after: .playing)
+                }, label: {
                     RoundedRectangle(cornerRadius: 20)
                         .fill(
                             LinearGradient(
@@ -193,19 +196,14 @@ struct TimeAttackPlayingView: View {
     var timeAttackViewModel: TimeAttackViewModel
     @State private var memoView = PKCanvasView()
     @Binding var opacity: Double
-    @Environment(ContentViewModel.self) private var contentViewModel
     @Environment(SettingViewModel.self) private var settingViewModel
     var memoButtonAlignment: Alignment {
         settingViewModel.selectedHand == .right ? .bottomTrailing : .bottomLeading
     }
 
     var body: some View {
-        @Bindable var contentViewModel = contentViewModel
+        @Bindable var timeAttackViewModel = timeAttackViewModel
             ZStack {
-                BackgroundAnimationView(phase: contentViewModel.nowBackgroundPhase)
-                    .ignoresSafeArea()
-                BubbleBackgroundView(isActive: $contentViewModel.isBubbleAnimation)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                 VStack(spacing: 0) {
                     // TODO: phaseによって変わる。
@@ -217,19 +215,19 @@ struct TimeAttackPlayingView: View {
                             )
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                         case .playing, .done:
-                            ProblemView()
+                            TimeAttackProblemView(timeAttackViewModel: timeAttackViewModel)
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                         }
                     }
                         .overlay(alignment: .bottom) {
                             HStack {
-                                Text("\(contentViewModel.userInput.isEmpty ? "   " : contentViewModel.userInput)")
+                                Text("\(timeAttackViewModel.userInput.isEmpty ? "   " : timeAttackViewModel.userInput)")
                                     .font(Font.title)
                                     .background(Color(red: 217/255, green: 217/255, blue: 217/255))
                             }
                             .frame(maxWidth: .infinity, maxHeight: 40)
                             .padding()
-                            .keyframeAnimator(initialValue: 0.0, trigger: contentViewModel.checkAnimation) { content, value in
+                            .keyframeAnimator(initialValue: 0.0, trigger: timeAttackViewModel.checkAnimation) { content, value in
                                 content.offset(x: value)
                             } keyframes: { _ in
                                 KeyframeTrack {
@@ -255,29 +253,29 @@ struct TimeAttackPlayingView: View {
                                     Rectangle()
                                         .fill(Color(red: 217/255, green: 217/255, blue: 217/255))
                                         .frame(width: 40, height: 40)
-                                    Image(systemName: contentViewModel.isKeyboard ? "pencil.tip" : "plus.forwardslash.minus")
+                                    Image(systemName: timeAttackViewModel.isKeyboard ? "pencil.tip" : "plus.forwardslash.minus")
                                         .resizable()
                                         .scaledToFit()
                                         .frame(width: 20, height: 20)
                                 }
                             })
                             .buttonStyle(SubButtonStyle(onTouchUp: {
-                                contentViewModel.togglePadView()
-                                if contentViewModel.isKeyboard {
+                                timeAttackViewModel.togglePadView()
+                                if timeAttackViewModel.isKeyboard {
                                     memoView.drawing = PKDrawing()
                                 }
                             }))
                             .padding()
                         }
                     ZStack {
-                        if contentViewModel.isKeyboard {
-                            NumberPadView("submit", text: $contentViewModel.userInput, isHaptic: settingViewModel.isOn, action: {
+                        if timeAttackViewModel.isKeyboard {
+                            NumberPadView("submit", text: $timeAttackViewModel.userInput, isHaptic: settingViewModel.isOn, action: {
                                 Task {
-                                    await contentViewModel.checkAnswer()
+                                    await timeAttackViewModel.checkAnswer()
                                 }
                             })
                         } else {
-                            MemoView(memoView: $memoView, isKeyboard: $contentViewModel.isKeyboard)
+                            MemoView(memoView: $memoView, isKeyboard: $timeAttackViewModel.isKeyboard)
                                 .shadow(color: .gray.opacity(0.25), radius: 10, x: 0, y: -10)
                         }
                         
@@ -290,15 +288,15 @@ struct TimeAttackPlayingView: View {
                     
                 }
                 .overlay(alignment: .topLeading) {
-                    Text("正解 \(contentViewModel.success)")
+                    Text("正解 \(timeAttackViewModel.score)")
                         .font(.headline)
-                        .foregroundStyle(contentViewModel.nowBackgroundPhase == .phase1 ? .black : .white)
+//                        .foregroundStyle(timeAttackViewModel.nowBackgroundPhase == .phase1 ? .black : .white)
                         .padding()
                 }
                 .overlay(alignment: .topTrailing) {
                     Text("残り \(timeAttackViewModel.remainingSeconds) 秒")
                         .font(.headline)
-                        .foregroundStyle(contentViewModel.nowBackgroundPhase == .phase1 ? .black : .white)
+//                        .foregroundStyle(timeAttackViewModel.nowBackgroundPhase == .phase1 ? .black : .white)
                         .padding()
                 }
                 
@@ -327,7 +325,7 @@ struct TimeAttackPlayingView: View {
 }
 
 struct TimeAttackResultView: View {
-    let correctCount: Int
+    var timeAttackViewModel: TimeAttackViewModel
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -349,16 +347,20 @@ struct TimeAttackResultView: View {
                 Spacer()
                 
                 Text("score")
-                Text("\(correctCount)")
+                Text("\(timeAttackViewModel.score)")
                 Button("Xでスコアを共有") {
-                    shareOnTwitter(correctCount: correctCount)
+                    shareOnTwitter(correctCount: timeAttackViewModel.score)
                 }
                 Button("ホームに戻る") {
+                    timeAttackViewModel.sendToLeaderboard()
                     dismiss()
                 }
 
 
                 Spacer()
+            }
+            .onAppear() {
+                timeAttackViewModel.sendToLeaderboard()
             }
         }
         .navigationBarBackButtonHidden(true)
@@ -377,5 +379,6 @@ struct TimeAttackResultView: View {
     TimeAttackView()
 }
 #Preview {
-    TimeAttackResultView(correctCount: 0)
+    @Previewable @State var timeAttackViewModel = TimeAttackViewModel()
+    TimeAttackResultView(timeAttackViewModel: timeAttackViewModel)
 }

@@ -17,6 +17,7 @@ extension Array {
     }
 }
 
+
 struct ProblemView: View {
     @Environment(ContentViewModel.self) var contentViewModel
 
@@ -149,6 +150,142 @@ struct ProblemView: View {
             }
             .opacity(contentViewModel.nowProblem == .problem2 ? 1 : 0)
             .offset(y: contentViewModel.nowProblem == .problem2 ? 0 : 20)
+        }
+    }
+}
+
+struct TimeAttackProblemView: View {
+    var timeAttackViewModel: TimeAttackViewModel
+
+    var body: some View {
+        @Bindable var timeAttackViewModel = timeAttackViewModel
+
+        ZStack {
+            // 一つ目
+            VStack {
+                if let problem = timeAttackViewModel.matrixProblem1 {
+                    switch problem.problemType {
+                    case .add, .sub, .mul:
+                        HStack(spacing: 0) {
+                            MatrixGridView(matrix: problem.matrices[0], matrixType: .normal)
+                            
+                            OperatorText(type: problem.problemType)
+                            
+                            MatrixGridView(matrix: problem.matrices[1], matrixType: .normal)
+                        }
+                        HStack {
+                            cellText("=")
+                            if let matrix = problem.ansMatrix, let ansX = problem.ansRow, let ansY = problem.ansColumn {
+                                MatrixAnswerView(
+                                    matrix: matrix,
+                                    answerX: ansX,
+                                    answerY: ansY,
+                                    isSuccess: $timeAttackViewModel.isSuccess1
+                                )
+                            } else {
+                                ProgressView()
+                            }
+                        }
+                    case .determinant:
+                        MatrixGridView(
+                            matrix: problem.matrices[0],
+                            matrixType: .determinant,
+                        )
+                        HStack {
+                            cellText("=")
+                            DeterminantAnswerView(
+                                ansValue: timeAttackViewModel.matrixProblem1!.ansValue,
+                                isSuccess: $timeAttackViewModel.isSuccess1
+                            )
+                        }
+                    }
+                } else {
+                    ProgressView()
+                }
+            }
+            .padding()
+//            .background {
+//                if timeAttackViewModel.nowBackgroundPhase != .phase1 {
+//                    Color.white
+//                        .clipShape(RoundedRectangle(cornerRadius: 20))
+//                        .overlay() {
+//                            RoundedRectangle(cornerRadius: 20)
+//                                .stroke(Color(red: 217/255, green: 217/255, blue: 217/255), lineWidth: 3)
+//                        }
+//                } else {
+//                    Color.clear
+//                }
+//            }
+            .opacity(timeAttackViewModel.nowProblem == .problem1 ? 1 : 0)
+            .offset(y: timeAttackViewModel.nowProblem == .problem1 ? 0 : 20)
+            
+            // 二つ目
+            VStack {
+                if let problem = timeAttackViewModel.matrixProblem2 {
+                    
+                    switch problem.problemType {
+                    case .add, .sub, .mul:
+                        HStack(spacing: 0) {
+                            MatrixGridView(
+                                matrix: problem.matrices[0],
+                                matrixType: .normal
+                            )
+                            
+                            OperatorText(type: problem.problemType)
+                            
+                            MatrixGridView(
+                                matrix: problem.matrices[1],
+                                matrixType: .normal
+                            )
+                        }
+                        HStack {
+                            cellText("=")
+                            if let matrix = problem.ansMatrix, let ansX = problem.ansRow, let ansY = problem.ansColumn {
+                                MatrixAnswerView(
+                                    matrix: matrix,
+                                    answerX: ansX,
+                                    answerY: ansY,
+                                    isSuccess: $timeAttackViewModel.isSuccess2
+                                )
+                            } else {
+                                ProgressView()
+                            }
+                        }
+                        
+                    case .determinant:
+                        MatrixGridView(
+                            matrix: problem.matrices[0],
+                            matrixType: .determinant
+                        )
+                        HStack {
+                            cellText("=")
+                            DeterminantAnswerView(
+                                ansValue: timeAttackViewModel.matrixProblem2!.ansValue,
+                                isSuccess: $timeAttackViewModel.isSuccess2
+                            )
+                        }
+                        
+                    }
+                    
+                } else {
+                    ProgressView()
+                }
+            }
+            .padding()
+//            .background {
+//                if timeAttackViewModel.nowBackgroundPhase != .phase1 {
+//                    Color.white
+//                        .clipShape(RoundedRectangle(cornerRadius: 20))
+//                        .overlay() {
+//                            RoundedRectangle(cornerRadius: 20)
+//                                .stroke(Color(red: 217/255, green: 217/255, blue: 217/255), lineWidth: 3)
+//                        }
+//                } else {
+//                    Color.clear
+//                }
+//            }
+            .opacity(timeAttackViewModel.nowProblem == .problem2 ? 1 : 0)
+            .offset(y: timeAttackViewModel.nowProblem == .problem2 ? 0 : 20)
         }
     }
 }

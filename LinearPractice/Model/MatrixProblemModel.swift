@@ -37,10 +37,6 @@ extension ProblemType: Hashable {
 }
 
 extension MatrixProblemModel: Identifiable {}
-
-
-
-
 struct MatrixProblemModel {
     // Identifiable
     var id: String
