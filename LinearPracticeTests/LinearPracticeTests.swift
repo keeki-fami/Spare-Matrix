@@ -21,8 +21,6 @@ struct MatrixModelTest {
             }
         }
     }
-    
-    
 }
 
 struct MatrixProblemModelTest {
@@ -34,6 +32,8 @@ struct MatrixProblemModelTest {
         switch matrixProblemModel.problemType {
         case .add, .sub, .mul:
             #expect(matrixProblemModel.matrices.count == 2)
+        case .determinant:
+            #expect(matrixProblemModel.matrices.count == 1)
         @unknown default:
             print("未実装")
         }
