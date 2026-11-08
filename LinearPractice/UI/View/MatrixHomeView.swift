@@ -12,15 +12,38 @@ enum MatrixType {
     case determinant
 }
 
+enum FeverModeType {
+    case dark
+    case light
+}
+
 // View: 行列の表示
 struct MatrixGridView: View {
     let matrix: MatrixModel
     let matrixType: MatrixType
+    let feverModeType: FeverModeType
+    
+    var parenthesisLeftStyle: String {
+        if feverModeType == .dark {
+            "left_white"
+        } else {
+            "left"
+        }
+    }
+    
+    var parenthesisRightStyle: String {
+        if feverModeType == .dark {
+            "right_white"
+        } else {
+            "right"
+        }
+    }
+    
     @State var hSize: CGFloat = 0
     var body: some View {
         HStack {
             if matrixType == .normal {
-                Image("left2")
+                Image(parenthesisLeftStyle)
                     .resizable()
                     .frame(width: 10, height: hSize)
             } else {
@@ -50,7 +73,7 @@ struct MatrixGridView: View {
                     }
             })
             if matrixType == .normal {
-                Image("right2")
+                Image(parenthesisRightStyle)
                     .resizable()
                     .frame(width: 10, height: hSize)
             } else {
@@ -96,9 +119,28 @@ struct MatrixAnswerView: View {
     @Binding var isSuccess: Bool
     @State private var hSize: CGFloat = 0
     @State private var point: CGPoint = .init()
+    
+    let feverModeType: FeverModeType
+    
+    var parenthesisLeftStyle: String {
+        if feverModeType == .dark {
+            "left_white"
+        } else {
+            "left"
+        }
+    }
+    
+    var parenthesisRightStyle: String {
+        if feverModeType == .dark {
+            "right_white"
+        } else {
+            "right"
+        }
+    }
+    
     var body: some View {
         HStack {
-            Image("left2")
+            Image(parenthesisLeftStyle)
                 .resizable()
                 .frame(width: 10, height: hSize)
                 .zIndex(-1)
@@ -141,7 +183,7 @@ struct MatrixAnswerView: View {
                     }
             })
             
-            Image("right2")
+            Image(parenthesisRightStyle)
                 .resizable()
                 .frame(width: 10, height: hSize)
                 .zIndex(-1)

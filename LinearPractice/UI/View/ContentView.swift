@@ -31,11 +31,21 @@ struct ProblemView: View {
                     switch problem.problemType {
                     case .add, .sub, .mul:
                         HStack(spacing: 0) {
-                            MatrixGridView(matrix: problem.matrices[0], matrixType: .normal)
+                            MatrixGridView(
+                                matrix: problem.matrices[0],
+                                matrixType: .normal,
+                                feverModeType: .light
+                            )
                             
-                            OperatorText(type: problem.problemType)
+                            OperatorText(
+                                type: problem.problemType
+                            )
                             
-                            MatrixGridView(matrix: problem.matrices[1], matrixType: .normal)
+                            MatrixGridView(
+                                matrix: problem.matrices[1],
+                                matrixType: .normal,
+                                feverModeType: .light
+                            )
                         }
                         HStack {
                             cellText("=")
@@ -44,7 +54,8 @@ struct ProblemView: View {
                                     matrix: matrix,
                                     answerX: ansX,
                                     answerY: ansY,
-                                    isSuccess: $contentViewModel.isSuccess1
+                                    isSuccess: $contentViewModel.isSuccess1,
+                                    feverModeType: .light
                                 )
                             } else {
                                 ProgressView()
@@ -54,6 +65,8 @@ struct ProblemView: View {
                         MatrixGridView(
                             matrix: problem.matrices[0],
                             matrixType: .determinant,
+                            feverModeType: .light,
+                            
                         )
                         HStack {
                             cellText("=")
@@ -92,14 +105,17 @@ struct ProblemView: View {
                         HStack(spacing: 0) {
                             MatrixGridView(
                                 matrix: problem.matrices[0],
-                                matrixType: .normal
+                                matrixType: .normal, feverModeType: .light
                             )
                             
-                            OperatorText(type: problem.problemType)
+                            OperatorText(
+                                type: problem.problemType
+                            )
                             
                             MatrixGridView(
                                 matrix: problem.matrices[1],
-                                matrixType: .normal
+                                matrixType: .normal,
+                                feverModeType: .light
                             )
                         }
                         HStack {
@@ -109,7 +125,8 @@ struct ProblemView: View {
                                     matrix: matrix,
                                     answerX: ansX,
                                     answerY: ansY,
-                                    isSuccess: $contentViewModel.isSuccess2
+                                    isSuccess: $contentViewModel.isSuccess2,
+                                    feverModeType: .light
                                 )
                             } else {
                                 ProgressView()
@@ -119,7 +136,8 @@ struct ProblemView: View {
                     case .determinant:
                         MatrixGridView(
                             matrix: problem.matrices[0],
-                            matrixType: .determinant
+                            matrixType: .determinant,
+                            feverModeType: .light
                         )
                         HStack {
                             cellText("=")
@@ -167,11 +185,19 @@ struct TimeAttackProblemView: View {
                     switch problem.problemType {
                     case .add, .sub, .mul:
                         HStack(spacing: 0) {
-                            MatrixGridView(matrix: problem.matrices[0], matrixType: .normal)
+                            MatrixGridView(
+                                matrix: problem.matrices[0],
+                                matrixType: .normal,
+                                feverModeType: timeAttackViewModel.isFever
+                            )
                             
                             OperatorText(type: problem.problemType)
                             
-                            MatrixGridView(matrix: problem.matrices[1], matrixType: .normal)
+                            MatrixGridView(
+                                matrix: problem.matrices[1],
+                                matrixType: .normal,
+                                feverModeType: timeAttackViewModel.isFever
+                            )
                         }
                         HStack {
                             cellText("=")
@@ -180,7 +206,8 @@ struct TimeAttackProblemView: View {
                                     matrix: matrix,
                                     answerX: ansX,
                                     answerY: ansY,
-                                    isSuccess: $timeAttackViewModel.isSuccess1
+                                    isSuccess: $timeAttackViewModel.isSuccess1,
+                                    feverModeType: timeAttackViewModel.isFever
                                 )
                             } else {
                                 ProgressView()
@@ -190,6 +217,7 @@ struct TimeAttackProblemView: View {
                         MatrixGridView(
                             matrix: problem.matrices[0],
                             matrixType: .determinant,
+                            feverModeType: timeAttackViewModel.isFever
                         )
                         HStack {
                             cellText("=")
@@ -204,18 +232,6 @@ struct TimeAttackProblemView: View {
                 }
             }
             .padding()
-//            .background {
-//                if timeAttackViewModel.nowBackgroundPhase != .phase1 {
-//                    Color.white
-//                        .clipShape(RoundedRectangle(cornerRadius: 20))
-//                        .overlay() {
-//                            RoundedRectangle(cornerRadius: 20)
-//                                .stroke(Color(red: 217/255, green: 217/255, blue: 217/255), lineWidth: 3)
-//                        }
-//                } else {
-//                    Color.clear
-//                }
-//            }
             .opacity(timeAttackViewModel.nowProblem == .problem1 ? 1 : 0)
             .offset(y: timeAttackViewModel.nowProblem == .problem1 ? 0 : 20)
             
@@ -228,14 +244,16 @@ struct TimeAttackProblemView: View {
                         HStack(spacing: 0) {
                             MatrixGridView(
                                 matrix: problem.matrices[0],
-                                matrixType: .normal
+                                matrixType: .normal,
+                                feverModeType: timeAttackViewModel.isFever
                             )
                             
                             OperatorText(type: problem.problemType)
                             
                             MatrixGridView(
                                 matrix: problem.matrices[1],
-                                matrixType: .normal
+                                matrixType: .normal,
+                                feverModeType: timeAttackViewModel.isFever
                             )
                         }
                         HStack {
@@ -245,7 +263,8 @@ struct TimeAttackProblemView: View {
                                     matrix: matrix,
                                     answerX: ansX,
                                     answerY: ansY,
-                                    isSuccess: $timeAttackViewModel.isSuccess2
+                                    isSuccess: $timeAttackViewModel.isSuccess2,
+                                    feverModeType: timeAttackViewModel.isFever
                                 )
                             } else {
                                 ProgressView()
@@ -255,7 +274,8 @@ struct TimeAttackProblemView: View {
                     case .determinant:
                         MatrixGridView(
                             matrix: problem.matrices[0],
-                            matrixType: .determinant
+                            matrixType: .determinant,
+                            feverModeType: timeAttackViewModel.isFever
                         )
                         HStack {
                             cellText("=")
@@ -272,21 +292,12 @@ struct TimeAttackProblemView: View {
                 }
             }
             .padding()
-//            .background {
-//                if timeAttackViewModel.nowBackgroundPhase != .phase1 {
-//                    Color.white
-//                        .clipShape(RoundedRectangle(cornerRadius: 20))
-//                        .overlay() {
-//                            RoundedRectangle(cornerRadius: 20)
-//                                .stroke(Color(red: 217/255, green: 217/255, blue: 217/255), lineWidth: 3)
-//                        }
-//                } else {
-//                    Color.clear
-//                }
-//            }
             .opacity(timeAttackViewModel.nowProblem == .problem2 ? 1 : 0)
             .offset(y: timeAttackViewModel.nowProblem == .problem2 ? 0 : 20)
         }
+        .foregroundStyle(
+            timeAttackViewModel.feverPhase == .fever ? Color.white : Color.black
+        )
     }
 }
 
@@ -549,53 +560,53 @@ struct ContentView: View {
                         
                     }
                     .sharedBackgroundVisibility(.hidden)
-                    ToolbarItem(placement: .topBarLeading) {
-                        Menu {
-                            NavigationLink(destination: {
-                                ProfileView(manager: $gameCenterManager)
-                                    .onAppear() {
-                                        gameCenterManager.submitScore(contentViewModel.success, to: "com.LinearPractice.keekifami.HighScore")
-                                        gameCenterManager.submitScore(contentViewModel.combo, to: "com.LinearPractice.keekifami.WeeklyComboRanking")
-                                        UserDefaults.standard.set(contentViewModel.success, forKey: "success")
-                                        UserDefaults.standard.set(contentViewModel.combo, forKey: "combo")
-                                        
-                                    }
-                            }, label: {
-                                Label("プロフィール", systemImage: "person")
-                            })
-                            
-                            
-                            Button {
-                                gameCenterManager.submitScore(contentViewModel.success, to: "com.LinearPractice.keekifami.HighScore")
-                                gameCenterManager.submitScore(contentViewModel.combo, to: "com.LinearPractice.keekifami.WeeklyComboRanking")
-                                UserDefaults.standard.set(contentViewModel.success, forKey: "success")
-                                UserDefaults.standard.set(contentViewModel.combo, forKey: "combo")
-                                navigationPath.append(ExplanationDestination.home)
-                            } label: {
-                                Label("チュートリアル", systemImage: "book.pages")
-                            }
-                            
-                            Button {
-                                navigationPath.append(SettingDestination.home)
-                            } label : {
-                                Label("設定", systemImage: "gearshape")
-                            }
-                            
-                            Button(action: {
-                                gameCenterManager.submitScore(contentViewModel.success, to: "com.LinearPractice.keekifami.HighScore")
-                                gameCenterManager.submitScore(contentViewModel.combo, to: "com.LinearPractice.keekifami.WeeklyComboRanking")
-                                UserDefaults.standard.set(contentViewModel.success, forKey: "success")
-                                UserDefaults.standard.set(contentViewModel.combo, forKey: "combo")
-                                
-                                gameCenterManager.showLeaderboards()
-                            }, label: {
-                                Label("ランキング", systemImage: "trophy")
-                            })
-                            
-                        } label: {
-                            Image(systemName: "info")
-                        }
-                    }
+//                    ToolbarItem(placement: .topBarLeading) {
+//                        Menu {
+//                            NavigationLink(destination: {
+//                                ProfileView(manager: $gameCenterManager)
+//                                    .onAppear() {
+//                                        gameCenterManager.submitScore(contentViewModel.success, to: "com.LinearPractice.keekifami.HighScore")
+//                                        gameCenterManager.submitScore(contentViewModel.combo, to: "com.LinearPractice.keekifami.WeeklyComboRanking")
+//                                        UserDefaults.standard.set(contentViewModel.success, forKey: "success")
+//                                        UserDefaults.standard.set(contentViewModel.combo, forKey: "combo")
+//                                        
+//                                    }
+//                            }, label: {
+//                                Label("プロフィール", systemImage: "person")
+//                            })
+//                            
+//                            
+//                            Button {
+//                                gameCenterManager.submitScore(contentViewModel.success, to: "com.LinearPractice.keekifami.HighScore")
+//                                gameCenterManager.submitScore(contentViewModel.combo, to: "com.LinearPractice.keekifami.WeeklyComboRanking")
+//                                UserDefaults.standard.set(contentViewModel.success, forKey: "success")
+//                                UserDefaults.standard.set(contentViewModel.combo, forKey: "combo")
+//                                navigationPath.append(ExplanationDestination.home)
+//                            } label: {
+//                                Label("チュートリアル", systemImage: "book.pages")
+//                            }
+//                            
+//                            Button {
+//                                navigationPath.append(SettingDestination.home)
+//                            } label : {
+//                                Label("設定", systemImage: "gearshape")
+//                            }
+//                            
+//                            Button(action: {
+//                                gameCenterManager.submitScore(contentViewModel.success, to: "com.LinearPractice.keekifami.HighScore")
+//                                gameCenterManager.submitScore(contentViewModel.combo, to: "com.LinearPractice.keekifami.WeeklyComboRanking")
+//                                UserDefaults.standard.set(contentViewModel.success, forKey: "success")
+//                                UserDefaults.standard.set(contentViewModel.combo, forKey: "combo")
+//                                
+//                                gameCenterManager.showLeaderboards()
+//                            }, label: {
+//                                Label("ランキング", systemImage: "trophy")
+//                            })
+//                            
+//                        } label: {
+//                            Image(systemName: "info")
+//                        }
+//                    }
                 }
         }
         .overlay(alignment: .top) {

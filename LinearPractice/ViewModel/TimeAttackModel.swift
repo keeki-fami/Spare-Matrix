@@ -6,6 +6,14 @@
 //  
 //
 import SwiftUI
+import Combine
+import AtCoderInSwift
+
+
+enum TimeAttackFeverPhase {
+    case normal
+    case fever
+}
 
 @Observable
 class TimeAttackViewModel: MatrixManager {
@@ -18,6 +26,8 @@ class TimeAttackViewModel: MatrixManager {
     var playingPhase: PlayingPhase = .before
     var score = 0
     
+    var combo = 0
+    var feverPhase: TimeAttackFeverPhase = .normal
     
     var timeAttackLeaderboard: String {
         switch genProblemType {
@@ -29,6 +39,35 @@ class TimeAttackViewModel: MatrixManager {
             "com.LinearPractice.TimeAttack.mul"
         default:
             ""
+        }
+    }
+    
+    var LocalRankingKey: String {
+        switch genProblemType {
+        case .add:
+            "localAddRanking"
+        case .sub:
+            "localSubRanking"
+        case .mul:
+            "localMulRanking"
+        default:
+            ""
+        }
+    }
+    
+    var tintColor: Color {
+        if feverPhase == .fever {
+            Color.yellow
+        } else {
+            Color.blue
+        }
+    }
+    
+    var isFever: FeverModeType {
+        if feverPhase == .fever {
+            .dark
+        } else {
+            .light
         }
     }
     
@@ -56,14 +95,33 @@ class TimeAttackViewModel: MatrixManager {
         if isAnswer {
             
             if let ans = Int(self.userInput) {
+                var num = 0
                 if genProblemType == .sub {
-                    self.score += max(abs(ans), 3)
+                    num = max(abs(ans), 3)
                 } else if genProblemType == .mul {
-                    self.score += max(abs(ans), 3)
+                    num = max(abs(ans), 3)
                 } else {
-                    self.score += ans
+                    num = ans
                 }
                 
+                
+                switch self.feverPhase {
+                case .normal:
+                    withAnimation {
+                        self.combo += 1
+                    }
+                    self.score += num
+                    if self.combo == 10 {
+                        withAnimation {
+                            self.feverPhase = .fever
+                        }
+                        manager.start()
+                        self.feverStart()
+                    }
+                case .fever:
+                    self.combo = 0
+                    self.score += num*2
+                }
             }
             
             self.userInput = ""
@@ -94,6 +152,7 @@ class TimeAttackViewModel: MatrixManager {
                     self.generate(type: self.genProblemType)
                 }
 
+
         } else {
             // GameCenterに送信
             let haptics = UserDefaults.standard.bool(forKey: "isHaptics")
@@ -103,6 +162,7 @@ class TimeAttackViewModel: MatrixManager {
             self.miniPhraseAnimation.toggle()
             checkAnimation.toggle()
             self.userInput = ""
+            self.combo = 0
         }
     }
     
@@ -144,7 +204,7 @@ class TimeAttackViewModel: MatrixManager {
         remainingSeconds = gameTime
         countdown = 3
         countdownTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
-            if self.countdown > 0 {
+            if self.countdown > 1 {
                 print(self.countdown)
                 self.countdown -= 1
             } else {
@@ -194,5 +254,188 @@ class TimeAttackViewModel: MatrixManager {
     func sendToLeaderboard() {
         print("send to timeAttackLeaderboard: \(timeAttackLeaderboard)")
         GameCenterManager.shared.submitScore(self.score, to: timeAttackLeaderboard)
+    }
+    
+    // fever
+    var remainingTime: Double = 10
+    var isRunning = false
+    private let totalTime: Double = 10
+    private var timer: AnyCancellable?
+
+    var progress: Double {
+        remainingTime / totalTime
+    }
+    
+    func feverStart() {
+        guard !isRunning else { return }
+
+        if remainingTime <= 0 {
+            feverReset()
+        }
+
+        isRunning = true
+
+        timer = Timer.publish(
+            every: 0.1,
+            on: .main,
+            in: .common
+        )
+        .autoconnect()
+        .sink { [weak self] _ in
+            guard let self else { return }
+
+            if remainingTime > 0 {
+                remainingTime = max(0, remainingTime - 0.1)
+            }
+
+            if remainingTime <= 0 {
+                print("aaa")
+                feverStop()
+                self.combo = 0
+                withAnimation {
+                    self.feverPhase = .normal
+                }
+            }
+        }
+    }
+    func feverPause() {
+        feverStop()
+    }
+
+    // タイマー停止
+    private func feverStop() {
+        timer?.cancel()
+        timer = nil
+        isRunning = false
+    }
+
+    // リセット
+    func feverReset() {
+        feverStop()
+        remainingTime = totalTime
+    }
+    
+    struct ResultRanking {
+        var ranking = [0,0,0,0,0]
+        var idx = 5
+    }
+    var result: ResultRanking = .init()
+    
+    func setLocalRanking() {
+        // jsonfetch
+        // localAddRanking
+        // localSubRanking
+        // localMulRanking
+        do {
+            let data = UserDefaults.standard.data(forKey: self.LocalRankingKey)
+            if data == nil {
+                // データを5つ作る
+                var ranking = [0, 0, 0, 0, 0]
+                let idx = binarySearch(arr: ranking, num: self.score)
+                ranking.append(self.score)
+                ranking.sort(by: {$0 > $1})
+                
+                result.ranking = ranking
+                result.idx = idx
+                
+                let encodeData = try JSONEncoder().encode(ranking)
+                UserDefaults.standard.set(encodeData, forKey: self.LocalRankingKey)
+            } else {
+                var ranking = try JSONDecoder().decode([Int].self, from: data!)
+                ranking.sort(by: {$0 > $1})
+                let idx = binarySearch(arr: ranking, num: self.score)
+                ranking.append(self.score)
+                ranking.sort(by: {$0 > $1})
+                
+                result.ranking = ranking
+                result.idx = idx
+                print("idx: \(idx)")
+                
+                let encodeData = try JSONEncoder().encode(ranking)
+                UserDefaults.standard.set(encodeData, forKey: self.LocalRankingKey)
+            }
+        } catch {
+            print("error")
+        }
+    }
+    func binarySearch(arr: [Int], num: Int) -> Int {
+        var l = -1
+        var r = arr.count
+        while (l+1<r) {
+            var middle = (l+r)/2
+            if arr[middle] > num {
+                l = middle
+            } else if arr[middle] <= num {
+                r = middle
+            } else {
+                return middle
+            }
+        }
+        return r
+    }
+    
+}
+
+
+import SwiftUI
+import Combine
+
+final class TimerViewModel: ObservableObject {
+    
+    @Published var remainingTime: Double = 10
+    @Published var isRunning = false
+    
+    private let totalTime: Double = 10
+    private var timer: AnyCancellable?
+    
+    var progress: Double {
+        remainingTime / totalTime
+    }
+    
+    // タイマー開始・再開
+    func start() {
+        guard !isRunning else { return }
+        
+        if remainingTime <= 0 {
+            reset()
+        }
+        
+        isRunning = true
+        
+        timer = Timer.publish(
+            every: 0.1,
+            on: .main,
+            in: .common
+        )
+        .autoconnect()
+        .sink { [weak self] _ in
+            guard let self else { return }
+            
+            if remainingTime > 0 {
+                remainingTime = max(0, remainingTime - 0.1)
+            }
+            
+            if remainingTime <= 0 {
+                stop()
+            }
+        }
+    }
+    
+    // 一時停止
+    func pause() {
+        stop()
+    }
+    
+    // タイマー停止
+    private func stop() {
+        timer?.cancel()
+        timer = nil
+        isRunning = false
+    }
+    
+    // リセット
+    func reset() {
+        stop()
+        remainingTime = totalTime
     }
 }

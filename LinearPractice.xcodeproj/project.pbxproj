@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		94351611309A353C0056F903 /* NumberPad in Frameworks */ = {isa = PBXBuildFile; productRef = 94351610309A353C0056F903 /* NumberPad */; };
+		946CAFA130A08EAE00C026CD /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 946CAFA030A08EAE00C026CD /* Algorithms */; };
+		946CAFA430A08F0900C026CD /* AtCoderInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 946CAFA330A08F0900C026CD /* AtCoderInSwift */; };
 		9497C9C33072321000D2EBF7 /* GameCenterResources.gamekit in Resources */ = {isa = PBXBuildFile; fileRef = 9497C9C23072321000D2EBF7 /* GameCenterResources.gamekit */; };
 		94D7C82A3091976100F690F8 /* AppVersionMonitorSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 94D7C8293091976100F690F8 /* AppVersionMonitorSwiftUI */; };
 		94D7C82D3091976F00F690F8 /* FloatingNumbers in Frameworks */ = {isa = PBXBuildFile; productRef = 94D7C82C3091976F00F690F8 /* FloatingNumbers */; };
@@ -54,9 +56,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				946CAFA130A08EAE00C026CD /* Algorithms in Frameworks */,
 				94D7C82A3091976100F690F8 /* AppVersionMonitorSwiftUI in Frameworks */,
 				94351611309A353C0056F903 /* NumberPad in Frameworks */,
 				94D7C82D3091976F00F690F8 /* FloatingNumbers in Frameworks */,
+				946CAFA430A08F0900C026CD /* AtCoderInSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -128,6 +132,8 @@
 				94D7C8293091976100F690F8 /* AppVersionMonitorSwiftUI */,
 				94D7C82C3091976F00F690F8 /* FloatingNumbers */,
 				94351610309A353C0056F903 /* NumberPad */,
+				946CAFA030A08EAE00C026CD /* Algorithms */,
+				946CAFA330A08F0900C026CD /* AtCoderInSwift */,
 			);
 			productName = LinearPractice;
 			productReference = 94A12F9F2FE98E1E00CB341C /* LinearPractice.app */;
@@ -165,6 +171,8 @@
 				94D7C8283091976100F690F8 /* XCRemoteSwiftPackageReference "AppVersionMonitorSwiftUI" */,
 				94D7C82B3091976F00F690F8 /* XCRemoteSwiftPackageReference "FloatingNumbersBackground" */,
 				9435160F309A353C0056F903 /* XCLocalSwiftPackageReference "../CalculatorView" */,
+				946CAF9F30A08EAE00C026CD /* XCRemoteSwiftPackageReference "swift-algorithms" */,
+				946CAFA230A08F0900C026CD /* XCRemoteSwiftPackageReference "AtCoder-in-Swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 94A12FA02FE98E1E00CB341C /* Products */;
@@ -407,7 +415,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2.1;
+				MARKETING_VERSION = 1.2.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.TowaSakurada.LinearPractice;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -446,7 +454,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2.1;
+				MARKETING_VERSION = 1.2.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.TowaSakurada.LinearPractice;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -502,6 +510,22 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		946CAF9F30A08EAE00C026CD /* XCRemoteSwiftPackageReference "swift-algorithms" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-algorithms.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.2.1;
+			};
+		};
+		946CAFA230A08F0900C026CD /* XCRemoteSwiftPackageReference "AtCoder-in-Swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/keeki-fami/AtCoder-in-Swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.1.4;
+			};
+		};
 		94D7C8283091976100F690F8 /* XCRemoteSwiftPackageReference "AppVersionMonitorSwiftUI" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SNQ-2001/AppVersionMonitorSwiftUI";
@@ -524,6 +548,16 @@
 		94351610309A353C0056F903 /* NumberPad */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = NumberPad;
+		};
+		946CAFA030A08EAE00C026CD /* Algorithms */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 946CAF9F30A08EAE00C026CD /* XCRemoteSwiftPackageReference "swift-algorithms" */;
+			productName = Algorithms;
+		};
+		946CAFA330A08F0900C026CD /* AtCoderInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 946CAFA230A08F0900C026CD /* XCRemoteSwiftPackageReference "AtCoder-in-Swift" */;
+			productName = AtCoderInSwift;
 		};
 		94D7C8293091976100F690F8 /* AppVersionMonitorSwiftUI */ = {
 			isa = XCSwiftPackageProductDependency;
