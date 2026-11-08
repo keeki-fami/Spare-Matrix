@@ -196,6 +196,7 @@ struct TimeAttackPlayingView: View {
     var timeAttackViewModel: TimeAttackViewModel
     @State private var memoView = PKCanvasView()
     @Binding var opacity: Double
+    @State private var memoTool:MemoTool = .pencil
     @Environment(SettingViewModel.self) private var settingViewModel
     var memoButtonAlignment: Alignment {
         settingViewModel.selectedHand == .right ? .bottomTrailing : .bottomLeading
@@ -277,6 +278,58 @@ struct TimeAttackPlayingView: View {
                         } else {
                             MemoView(memoView: $memoView, isKeyboard: $timeAttackViewModel.isKeyboard)
                                 .shadow(color: .gray.opacity(0.25), radius: 10, x: 0, y: -10)
+                                .overlay(alignment: settingViewModel.selectedHand == .right ? .topTrailing : .topLeading) {
+                                    HStack {
+                                        Button(action: {
+                                            
+                                        }, label: {
+                                            ZStack {
+                                                Rectangle()
+                                                    .fill(Color(red: 217/255, green: 217/255, blue: 217/255))
+                                                    .frame(width: 40, height: 40)
+                                                Image(systemName: memoTool == .pencil ? "pencil" : "eraser.fill")
+                                                    .resizable()
+                                                    .scaledToFit()
+                                                    .frame(width: 20, height: 20)
+                                            }
+                                        })
+                                        .buttonStyle(SubButtonStyle(onTouchUp: {
+                                            if memoTool == .eraser {
+                                                memoView.tool = PKInkingTool(
+                                                    .pen,
+                                                    color: .black,
+                                                    width: 5
+                                                )
+                                                memoTool = .pencil
+                                                print("現在はペンです")
+                                            } else {
+                                                memoView.tool = PKEraserTool(.vector)
+                                                print("現在は消しゴムです")
+                                                memoTool = .eraser
+                                            }
+                                        }))
+                                        
+                                        
+                                        Button(action: {
+                                            memoView.drawing = PKDrawing()
+                                        }, label: {
+                                            ZStack {
+                                                Rectangle()
+                                                    .fill(.red)
+                                                    .frame(width: 40, height: 40)
+                                                Image(systemName: "trash")
+                                                    .resizable()
+                                                    .scaledToFit()
+                                                    .foregroundStyle(Color.white)
+                                                    .frame(width: 20, height: 20)
+                                            }
+                                        })
+                                        .buttonStyle(SubButtonStyle(onTouchUp: {
+                                            memoView.drawing = PKDrawing()
+                                        }))
+                                    }
+                                    .padding()
+                                }
                         }
                         
                         if timeAttackViewModel.playingPhase == .before {
@@ -350,6 +403,10 @@ struct TimeAttackResultView: View {
                 Text("\(timeAttackViewModel.score)")
                 Button("Xでスコアを共有") {
                     shareOnTwitter(correctCount: timeAttackViewModel.score)
+                }
+                Button("ランキングを確認") {
+                    GameCenterManager.shared.showLeaderboards()
+                    dismiss()
                 }
                 Button("ホームに戻る") {
                     timeAttackViewModel.sendToLeaderboard()

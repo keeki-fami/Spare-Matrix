@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import MessageUI
 
 enum Hand: Codable {
     case left
@@ -15,19 +16,40 @@ enum Hand: Codable {
 
 struct SettingView: View {
     @Environment(SettingViewModel.self) var settingViewModel
+    @State private var isMail = false
     var body: some View {
         @Bindable var setting = settingViewModel
-        Form {
-            Toggle("触覚フィードバックを使用", isOn: $setting.isOn)
-            Picker("スマホを持つ手", selection: $setting.selectedHand) {
-                Text("右手(デフォルト)").tag(Hand.right)
-                Text("左手").tag(Hand.left)
+        Group {
+            
+            Form {
+                Section(header: Text("全体")) {
+                    Toggle("触覚フィードバックを使用", isOn: $setting.isOn)
+                    Picker("スマホを持つ手", selection: $setting.selectedHand) {
+                        Text("右手(デフォルト)").tag(Hand.right)
+                        Text("左手").tag(Hand.left)
+                    }
+                    Button("お問合せ") {
+                        if MFMailComposeViewController.canSendMail() {
+                            isMail = true
+                            print("ok")
+                        } else {
+                            isMail = false
+                            print("fail")
+                        }
+                    }
+                }
+                Section(header: Text("無限行列計算モード")) {
+                    NavigationLink(destination: {
+                        SettingProblemTypeView()
+                    }, label: {
+                        Text("出題設定")
+                    })
+                }
             }
-            NavigationLink(destination: {
-                SettingProblemTypeView()
-            }, label: {
-                Text("出題設定")
-            })
+        }
+        .onAppear() {
+            settingViewModel.fetchHand()
+            settingViewModel.fetchProblemType()
         }
         .onDisappear() {
             UserDefaults.standard.set(setting.isOn, forKey: "isHaptics")
@@ -35,6 +57,9 @@ struct SettingView: View {
         .onChange(of: settingViewModel.selectedHand) {
             settingViewModel.changeHand()
         }
+        .sheet(isPresented: $isMail, content: {
+            MailView(recipients: ["keekiApp.feedback@gmail.com"], subject: "無限行列計算 お問合せ", body: "aa")
+        })
         .navigationTitle("設定")
     }
 }

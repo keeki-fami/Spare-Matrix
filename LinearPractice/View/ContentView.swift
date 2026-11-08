@@ -295,6 +295,11 @@ enum SettingDestination: Hashable {
     case problemType
 }
 
+enum MemoTool {
+    case pencil
+    case eraser
+}
+
 struct ContentView: View {
     @State private var memoView = PKCanvasView()
     @Binding var navigationPath: NavigationPath
@@ -309,6 +314,7 @@ struct ContentView: View {
     @Environment(\.scenePhase) var scenePhase
     @State var gameCenterManager = GameCenterManager.shared
     @State private var isUpdate = false
+    @State private var memoTool = MemoTool.pencil
     
     
     var memoButtonAlignment: Alignment {
@@ -394,14 +400,68 @@ struct ContentView: View {
                     
                     
                     if contentViewModel.isKeyboard {
-                        NumberPadView("submit", text: $contentViewModel.userInput, isHaptic: settingViewModel.isOn, action: {
-                            Task {
-                                await contentViewModel.checkAnswer()
-                            }
-                        })
+                        HStack {
+                            NumberPadView("submit", text: $contentViewModel.userInput, isHaptic: settingViewModel.isOn, action: {
+                                Task {
+                                    await contentViewModel.checkAnswer()
+                                }
+                            })
+                        }
                     } else {
                         MemoView(memoView: $memoView, isKeyboard: $contentViewModel.isKeyboard)
                             .shadow(color: .gray.opacity(0.25), radius: 10, x: 0, y: -10)
+                            .overlay(alignment: settingViewModel.selectedHand == .right ? .topTrailing : .topLeading) {
+                                HStack {
+                                    Button(action: {
+                                        
+                                    }, label: {
+                                        ZStack {
+                                            Rectangle()
+                                                .fill(Color(red: 217/255, green: 217/255, blue: 217/255))
+                                                .frame(width: 44, height: 44)
+                                            Image(systemName: memoTool == .pencil ? "pencil" : "eraser.fill")
+                                                .resizable()
+                                                .scaledToFit()
+                                                .frame(width: 20, height: 20)
+                                        }
+                                    })
+                                    .buttonStyle(SubButtonStyle(onTouchUp: {
+                                        if memoTool == .eraser {
+                                            memoView.tool = PKInkingTool(
+                                                .pen,
+                                                color: .black,
+                                                width: 5
+                                            )
+                                            memoTool = .pencil
+                                            print("現在はペンです")
+                                        } else {
+                                            memoView.tool = PKEraserTool(.vector)
+                                            print("現在は消しゴムです")
+                                            memoTool = .eraser
+                                        }
+                                    }))
+                                    
+                                    
+                                    Button(action: {
+                                        memoView.drawing = PKDrawing()
+                                    }, label: {
+                                        ZStack {
+                                            Rectangle()
+                                                .fill(.red)
+                                                .frame(width: 44, height: 44)
+                                            Image(systemName: "trash")
+                                                .resizable()
+                                                .scaledToFit()
+                                                .foregroundStyle(Color.white)
+                                                .frame(width: 20, height: 20)
+                                        }
+                                    })
+                                    .buttonStyle(SubButtonStyle(onTouchUp: {
+                                        memoView.drawing = PKDrawing()
+                                    }))
+                                }
+                                .padding()
+                            }
                     }
                 }
                 .alert(

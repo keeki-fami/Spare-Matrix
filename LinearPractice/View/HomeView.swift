@@ -1,9 +1,9 @@
 //
 //  HomeView.swift
 //  LinearPractice
-//  
+//
 //  Created by keeki-fami on 2026/11/04
-//  
+//
 //
 
 import SwiftUI
@@ -47,25 +47,25 @@ enum HomeDestination: Hashable {
 struct GridBackground: View {
     // 格子の間隔
     var gridSize: CGFloat = 20
-
+    
     // 格子線の色
     var gridColor: Color = Color(
         red: 201 / 255,
         green: 221 / 255,
         blue: 240 / 255
     )
-
+    
     // 背景色
     var backgroundColor: Color = Color(
         red: 252 / 255,
         green: 253 / 255,
         blue: 254 / 255
     )
-
+    
     var body: some View {
         Canvas { context, size in
             var path = Path()
-
+            
             // 縦線
             stride(from: 0, through: size.width, by: gridSize)
                 .forEach { x in
@@ -74,7 +74,7 @@ struct GridBackground: View {
                         to: CGPoint(x: x, y: size.height)
                     )
                 }
-
+            
             // 横線
             stride(from: 0, through: size.height, by: gridSize)
                 .forEach { y in
@@ -83,7 +83,7 @@ struct GridBackground: View {
                         to: CGPoint(x: size.width, y: y)
                     )
                 }
-
+            
             context.stroke(
                 path,
                 with: .color(gridColor),
@@ -98,55 +98,55 @@ struct GridBackground: View {
 
 struct HomeView: View {
     @State private var gameCenterManager = GameCenterManager.shared
-    @State private var navigationPath = NavigationPath()
+    @Binding var navigationPath: NavigationPath
     var body: some View {
-        NavigationStack(path: $navigationPath) {
-            ZStack {
-                GridBackground()
-                VStack {
-                    Rectangle()
-                        .fill(.blue)
-                        .frame(height: 80)
-                        .overlay() {
-                            HStack {
-                                Text("Home")
-                                    .font(.largeTitle)
-                                    .fontWeight(.bold)
-                                    .foregroundStyle(.white)
-                                    .padding([.leading], 45)
-                                Spacer()
-                            }
+        
+        ZStack {
+            GridBackground()
+            VStack {
+                Rectangle()
+                    .fill(.blue)
+                    .frame(height: 80)
+                    .overlay() {
+                        HStack {
+                            Text("Home")
+                                .font(.largeTitle)
+                                .fontWeight(.bold)
+                                .foregroundStyle(.white)
+                                .padding([.leading], 45)
+                            Spacer()
                         }
-                    Spacer()
-                    CardView(
-                        title: "無限行列計算モード",
-                        description: "行列を無限に生成\n満足がいくまで練習",
-                        type: .infinity
-                    )
-                    .frame(width: 350, height: 170)
-                    CardView(
-                        title: "タイムアタック",
-                        description: "行列を無限に生成\n満足がいくまで練習",
-                        type: .timeattack
-                    )
-                    .frame(width: 350, height: 170)
-                    HStack {
-                        Spacer()
-                        MiniCardView(
-                            title: "ランキング",
-                            mark: "🏆",
-                            type: .ranking
-                        )
-                        .frame(width: 170, height: 100)
-                        //                Spacer()
-                        MiniCardView(
-                            title: "解説",
-                            mark: "📚",
-                            type: .tutorial
-                        )
-                        .frame(width: 170, height: 100)
-                        Spacer()
                     }
+//                Spacer()
+//                CardView(
+//                    title: "無限行列計算モード",
+//                    description: "行列を無限に生成\n満足がいくまで練習",
+//                    type: .infinity
+//                )
+//                .frame(width: 350, height: 170)
+//                CardView(
+//                    title: "タイムアタック",
+//                    description: "行列を無限に生成\n満足がいくまで練習",
+//                    type: .timeattack
+//                )
+//                .frame(width: 350, height: 170)
+//                HStack {
+//                    Spacer()
+//                    MiniCardView(
+//                        title: "ランキング",
+//                        mark: "🏆",
+//                        type: .ranking
+//                    )
+//                    .frame(width: 170, height: 100)
+//                    //                Spacer()
+//                    MiniCardView(
+//                        title: "解説",
+//                        mark: "📚",
+//                        type: .tutorial
+//                    )
+//                    .frame(width: 170, height: 100)
+//                    Spacer()
+//                }
                 Spacer()
                 Button {
                     navigationPath.append(HomeDestination.infinity)
@@ -173,16 +173,6 @@ struct HomeView: View {
                 HStack {
                     Spacer()
                     Button {
-                        gameCenterManager.submitScore(
-                            contentViewModel.success,
-                            to: "com.LinearPractice.keekifami.HighScore"
-                        )
-                        gameCenterManager.submitScore(
-                            contentViewModel.combo,
-                            to: "com.LinearPractice.keekifami.WeeklyComboRanking"
-                        )
-                        UserDefaults.standard.set(contentViewModel.success, forKey: "success")
-                        UserDefaults.standard.set(contentViewModel.combo, forKey: "combo")
                         gameCenterManager.showLeaderboards()
                     } label: {
                         MiniCardView(
@@ -205,9 +195,10 @@ struct HomeView: View {
                     }
                     .buttonStyle(.plain)
                     Spacer()
-                    // AdMob
                     
                 }
+                Spacer()
+                // AdMob
             }
             .toolbar{
                 ToolbarItem(placement: .topBarLeading) {
@@ -216,24 +207,6 @@ struct HomeView: View {
                     } label : {
                         Label("設定", systemImage: "gearshape")
                     }
-                }
-            }
-            .navigationDestination(for: SettingDestination.self) { destination in
-                switch destination {
-                case .home:
-                    SettingView()
-                case .problemType:
-                    SettingProblemTypeView()
-                }
-            }
-            .navigationDestination(for: ExplanationDestination.self) { destination in
-                switch destination {
-                case .home:
-                    ExplanationHomeView()
-                case .lesson(let lesson):
-                    ExplanationLessonView(lesson: lesson)
-                case .quiz(let lesson):
-                    ExplanationQuizView(lesson: lesson)
                 }
             }
             .onAppear() {
@@ -246,9 +219,10 @@ struct HomeView: View {
                 }
             }
         }
+        
     }
 }
-    
+
 struct MiniCardView: View {
     let title: String
     let mark: String
@@ -302,9 +276,11 @@ struct CardView: View {
     }
 }
 
+
 #if DEBUG
 #Preview {
-    HomeView(navigationPath: .constant(NavigationPath()))
+    @Previewable @State var navigationPath = NavigationPath()
+    HomeView(navigationPath: $navigationPath)
         .environment(ContentViewModel())
 }
 #endif
