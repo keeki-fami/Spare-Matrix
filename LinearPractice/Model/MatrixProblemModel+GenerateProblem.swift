@@ -28,16 +28,26 @@ extension MatrixProblemModel {
         return []
     }
     
-    static func generate() -> MatrixProblemModel {
-        guard let problemType = problemTypeList.randomElement() else {
-            preconditionFailure("At least one problem type must be available.")
+    static func generate(type: ProblemType? = nil) -> MatrixProblemModel {
+        var problemType: ProblemType
+        if let p = type {
+            problemType = p
+            print("type is not nil")
+        } else {
+            guard let problemT = problemTypeList.randomElement() else {
+                preconditionFailure("At least one problem type must be available.")
+            }
+            problemType = problemT
+            print("type is nil")
         }
+            
 
         var leftRows: Int = 0
         var leftColumns: Int = 0
         var rightRows: Int = 0
         var rightColumns: Int = 0
 
+        print("problemType: \(problemType)")
         // 次数による行数, 列数生成
         switch problemType {
         case .add, .sub:
@@ -213,8 +223,5 @@ extension MatrixProblemModel {
             self.ansRow = Int.random(in: 0..<(ansMatrix!.row))
             self.ansColumn = Int.random(in: 0..<ansMatrix!.column)
         }
-        
-        
     }
-
 }

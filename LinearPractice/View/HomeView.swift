@@ -39,6 +39,11 @@ enum CardColor {
     }
 }
 
+enum HomeDestination: Hashable {
+    case infinity
+    case timeAttack
+}
+
 struct GridBackground: View {
     // 格子の間隔
     var gridSize: CGFloat = 20
@@ -92,6 +97,10 @@ struct GridBackground: View {
 
 
 struct HomeView: View {
+    @Binding var navigationPath: NavigationPath
+    @Environment(ContentViewModel.self) private var contentViewModel
+    private let gameCenterManager = GameCenterManager.shared
+
     var body: some View {
         ZStack {
             GridBackground()
@@ -111,38 +120,76 @@ struct HomeView: View {
                         }
                     }
                 Spacer()
-                CardView(
-                    title: "無限行列計算モード",
-                    description: "行列を無限に生成\n満足がいくまで練習",
-                    type: .infinity
-                )
-                .frame(width: 350, height: 170)
-                CardView(
-                    title: "タイムアタック",
-                    description: "行列を無限に生成\n満足がいくまで練習",
-                    type: .timeattack
-                )
-                .frame(width: 350, height: 170)
+                Button {
+                    navigationPath.append(HomeDestination.infinity)
+                } label: {
+                    CardView(
+                        title: "無限行列計算モード",
+                        description: "行列を無限に生成\n満足がいくまで練習",
+                        type: .infinity
+                    )
+                    .frame(width: 350, height: 170)
+                }
+                .buttonStyle(.plain)
+                Button {
+                    navigationPath.append(HomeDestination.timeAttack)
+                } label: {
+                    CardView(
+                        title: "タイムアタック",
+                        description: "行列を無限に生成\n満足がいくまで練習",
+                        type: .timeattack
+                    )
+                    .frame(width: 350, height: 170)
+                }
+                .buttonStyle(.plain)
                 HStack {
                     Spacer()
-                    MiniCardView(
-                        title: "ランキング",
-                        mark: "🏆",
-                        type: .ranking
-                    )
-                    .frame(width: 170, height: 100)
-                    //                Spacer()
-                    MiniCardView(
-                        title: "解説",
-                        mark: "📚",
-                        type: .tutorial
-                    )
-                    .frame(width: 170, height: 100)
+                    Button {
+                        gameCenterManager.submitScore(
+                            contentViewModel.success,
+                            to: "com.LinearPractice.keekifami.HighScore"
+                        )
+                        gameCenterManager.submitScore(
+                            contentViewModel.combo,
+                            to: "com.LinearPractice.keekifami.WeeklyComboRanking"
+                        )
+                        UserDefaults.standard.set(contentViewModel.success, forKey: "success")
+                        UserDefaults.standard.set(contentViewModel.combo, forKey: "combo")
+                        gameCenterManager.showLeaderboards()
+                    } label: {
+                        MiniCardView(
+                            title: "ランキング",
+                            mark: "🏆",
+                            type: .ranking
+                        )
+                        .frame(width: 170, height: 100)
+                    }
+                    .buttonStyle(.plain)
+                    Button {
+                        navigationPath.append(ExplanationDestination.home)
+                    } label: {
+                        MiniCardView(
+                            title: "解説",
+                            mark: "📚",
+                            type: .tutorial
+                        )
+                        .frame(width: 170, height: 100)
+                    }
+                    .buttonStyle(.plain)
                     Spacer()
                 }
                 Spacer()
                 // AdMob
                 
+            }
+            .onAppear() {
+                gameCenterManager.initializeLocalPlayer()
+                
+                if gameCenterManager.isAuthenticated {
+                    Task {
+                        await gameCenterManager.checkDuration()
+                    }
+                }
             }
         }
     }
@@ -202,6 +249,7 @@ struct CardView: View {
 
 #if DEBUG
 #Preview {
-    HomeView()
+    HomeView(navigationPath: .constant(NavigationPath()))
+        .environment(ContentViewModel())
 }
 #endif

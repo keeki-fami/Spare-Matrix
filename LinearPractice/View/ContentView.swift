@@ -17,6 +17,7 @@ extension Array {
     }
 }
 
+
 struct ProblemView: View {
     @Environment(ContentViewModel.self) var contentViewModel
 
@@ -153,6 +154,142 @@ struct ProblemView: View {
     }
 }
 
+struct TimeAttackProblemView: View {
+    var timeAttackViewModel: TimeAttackViewModel
+
+    var body: some View {
+        @Bindable var timeAttackViewModel = timeAttackViewModel
+
+        ZStack {
+            // 一つ目
+            VStack {
+                if let problem = timeAttackViewModel.matrixProblem1 {
+                    switch problem.problemType {
+                    case .add, .sub, .mul:
+                        HStack(spacing: 0) {
+                            MatrixGridView(matrix: problem.matrices[0], matrixType: .normal)
+                            
+                            OperatorText(type: problem.problemType)
+                            
+                            MatrixGridView(matrix: problem.matrices[1], matrixType: .normal)
+                        }
+                        HStack {
+                            cellText("=")
+                            if let matrix = problem.ansMatrix, let ansX = problem.ansRow, let ansY = problem.ansColumn {
+                                MatrixAnswerView(
+                                    matrix: matrix,
+                                    answerX: ansX,
+                                    answerY: ansY,
+                                    isSuccess: $timeAttackViewModel.isSuccess1
+                                )
+                            } else {
+                                ProgressView()
+                            }
+                        }
+                    case .determinant:
+                        MatrixGridView(
+                            matrix: problem.matrices[0],
+                            matrixType: .determinant,
+                        )
+                        HStack {
+                            cellText("=")
+                            DeterminantAnswerView(
+                                ansValue: timeAttackViewModel.matrixProblem1!.ansValue,
+                                isSuccess: $timeAttackViewModel.isSuccess1
+                            )
+                        }
+                    }
+                } else {
+                    ProgressView()
+                }
+            }
+            .padding()
+//            .background {
+//                if timeAttackViewModel.nowBackgroundPhase != .phase1 {
+//                    Color.white
+//                        .clipShape(RoundedRectangle(cornerRadius: 20))
+//                        .overlay() {
+//                            RoundedRectangle(cornerRadius: 20)
+//                                .stroke(Color(red: 217/255, green: 217/255, blue: 217/255), lineWidth: 3)
+//                        }
+//                } else {
+//                    Color.clear
+//                }
+//            }
+            .opacity(timeAttackViewModel.nowProblem == .problem1 ? 1 : 0)
+            .offset(y: timeAttackViewModel.nowProblem == .problem1 ? 0 : 20)
+            
+            // 二つ目
+            VStack {
+                if let problem = timeAttackViewModel.matrixProblem2 {
+                    
+                    switch problem.problemType {
+                    case .add, .sub, .mul:
+                        HStack(spacing: 0) {
+                            MatrixGridView(
+                                matrix: problem.matrices[0],
+                                matrixType: .normal
+                            )
+                            
+                            OperatorText(type: problem.problemType)
+                            
+                            MatrixGridView(
+                                matrix: problem.matrices[1],
+                                matrixType: .normal
+                            )
+                        }
+                        HStack {
+                            cellText("=")
+                            if let matrix = problem.ansMatrix, let ansX = problem.ansRow, let ansY = problem.ansColumn {
+                                MatrixAnswerView(
+                                    matrix: matrix,
+                                    answerX: ansX,
+                                    answerY: ansY,
+                                    isSuccess: $timeAttackViewModel.isSuccess2
+                                )
+                            } else {
+                                ProgressView()
+                            }
+                        }
+                        
+                    case .determinant:
+                        MatrixGridView(
+                            matrix: problem.matrices[0],
+                            matrixType: .determinant
+                        )
+                        HStack {
+                            cellText("=")
+                            DeterminantAnswerView(
+                                ansValue: timeAttackViewModel.matrixProblem2!.ansValue,
+                                isSuccess: $timeAttackViewModel.isSuccess2
+                            )
+                        }
+                        
+                    }
+                    
+                } else {
+                    ProgressView()
+                }
+            }
+            .padding()
+//            .background {
+//                if timeAttackViewModel.nowBackgroundPhase != .phase1 {
+//                    Color.white
+//                        .clipShape(RoundedRectangle(cornerRadius: 20))
+//                        .overlay() {
+//                            RoundedRectangle(cornerRadius: 20)
+//                                .stroke(Color(red: 217/255, green: 217/255, blue: 217/255), lineWidth: 3)
+//                        }
+//                } else {
+//                    Color.clear
+//                }
+//            }
+            .opacity(timeAttackViewModel.nowProblem == .problem2 ? 1 : 0)
+            .offset(y: timeAttackViewModel.nowProblem == .problem2 ? 0 : 20)
+        }
+    }
+}
+
 enum SettingDestination: Hashable {
     case home
     case problemType
@@ -160,7 +297,7 @@ enum SettingDestination: Hashable {
 
 struct ContentView: View {
     @State private var memoView = PKCanvasView()
-    @State private var navigationPath = NavigationPath()
+    @Binding var navigationPath: NavigationPath
     @Environment(ContentViewModel.self) var contentViewModel
     @Environment(SettingViewModel.self) var settingViewModel
     
@@ -171,6 +308,7 @@ struct ContentView: View {
     
     @Environment(\.scenePhase) var scenePhase
     @State var gameCenterManager = GameCenterManager.shared
+    @State private var isUpdate = false
     
     
     var memoButtonAlignment: Alignment {
@@ -185,8 +323,7 @@ struct ContentView: View {
     var body: some View {
         @Bindable var contentViewModel = contentViewModel
 
-        NavigationStack(path: $navigationPath) {
-            ZStack {
+        ZStack {
 //                BubbleBackgroundView(isActive: $contentViewModel.isBubbleAnimation)
                 BackgroundAnimationView(phase: contentViewModel.nowBackgroundPhase)
                     .ignoresSafeArea()
@@ -269,7 +406,7 @@ struct ContentView: View {
                 }
                 .alert(
                     "最新版があります",
-                    isPresented: $contentViewModel.updateAlert
+                    isPresented: $isUpdate
                 ) {
                     Button(role: .cancel) {
                         
@@ -291,10 +428,10 @@ struct ContentView: View {
                 .appVersionMonitor(id: 6785983550) { status in
                     switch status {
                     case .updateAvailable:
-                        contentViewModel.updateAlert = true
+                        isUpdate = true
                     default:
                         print(status)
-                        contentViewModel.updateAlert = false
+                        isUpdate = false
                     }
                     
                 }
@@ -400,26 +537,8 @@ struct ContentView: View {
                         }
                     }
                 }
-                .navigationDestination(for: SettingDestination.self) { destination in
-                    switch destination {
-                    case .home:
-                        SettingView()
-                    case .problemType:
-                        SettingProblemTypeView()
-                    }
-                }
-                .navigationDestination(for: ExplanationDestination.self) { destination in
-                    switch destination {
-                    case .home:
-                        ExplanationHomeView()
-                    case .lesson(let lesson):
-                        ExplanationLessonView(lesson: lesson)
-                    case .quiz(let lesson):
-                        ExplanationQuizView(lesson: lesson)
-                    }
-                }
-            }
-            .overlay(alignment: .top) {
+        }
+        .overlay(alignment: .top) {
                 Text("\"\(contentViewModel.phrasePer5.nowPhrase)\"")
                     .italic()
                     .font(.caption)
@@ -441,7 +560,6 @@ struct ContentView: View {
                             LinearKeyframe(10, duration: 0.2)
                         }
                     })
-            }
         }
     }
 }
@@ -484,7 +602,7 @@ struct OperatorText: View {
 
 #if DEBUG
 #Preview {
-    ContentView()
+    ContentView(navigationPath: .constant(NavigationPath()))
         .environment(ContentViewModel())
         .environment(SettingViewModel())
     //    buttonTest()
