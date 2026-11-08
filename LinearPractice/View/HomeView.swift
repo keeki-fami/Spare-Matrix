@@ -97,27 +97,55 @@ struct GridBackground: View {
 
 
 struct HomeView: View {
-    @Binding var navigationPath: NavigationPath
-    @Environment(ContentViewModel.self) private var contentViewModel
-    private let gameCenterManager = GameCenterManager.shared
-
+    @State private var gameCenterManager = GameCenterManager.shared
+    @State private var navigationPath = NavigationPath()
     var body: some View {
-        ZStack {
-            GridBackground()
-            VStack {
-                //            Spacer()
-                Rectangle()
-                    .fill(.blue)
-                    .frame(height: 80)
-                    .overlay() {
-                        HStack {
-                            Text("Home")
-                                .font(.largeTitle)
-                                .fontWeight(.bold)
-                                .foregroundStyle(.white)
-                                .padding([.leading], 45)
-                            Spacer()
+        NavigationStack(path: $navigationPath) {
+            ZStack {
+                GridBackground()
+                VStack {
+                    Rectangle()
+                        .fill(.blue)
+                        .frame(height: 80)
+                        .overlay() {
+                            HStack {
+                                Text("Home")
+                                    .font(.largeTitle)
+                                    .fontWeight(.bold)
+                                    .foregroundStyle(.white)
+                                    .padding([.leading], 45)
+                                Spacer()
+                            }
                         }
+                    Spacer()
+                    CardView(
+                        title: "無限行列計算モード",
+                        description: "行列を無限に生成\n満足がいくまで練習",
+                        type: .infinity
+                    )
+                    .frame(width: 350, height: 170)
+                    CardView(
+                        title: "タイムアタック",
+                        description: "行列を無限に生成\n満足がいくまで練習",
+                        type: .timeattack
+                    )
+                    .frame(width: 350, height: 170)
+                    HStack {
+                        Spacer()
+                        MiniCardView(
+                            title: "ランキング",
+                            mark: "🏆",
+                            type: .ranking
+                        )
+                        .frame(width: 170, height: 100)
+                        //                Spacer()
+                        MiniCardView(
+                            title: "解説",
+                            mark: "📚",
+                            type: .tutorial
+                        )
+                        .frame(width: 170, height: 100)
+                        Spacer()
                     }
                 Spacer()
                 Button {
@@ -177,10 +205,36 @@ struct HomeView: View {
                     }
                     .buttonStyle(.plain)
                     Spacer()
+                    // AdMob
+                    
                 }
-                Spacer()
-                // AdMob
-                
+            }
+            .toolbar{
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        navigationPath.append(SettingDestination.home)
+                    } label : {
+                        Label("設定", systemImage: "gearshape")
+                    }
+                }
+            }
+            .navigationDestination(for: SettingDestination.self) { destination in
+                switch destination {
+                case .home:
+                    SettingView()
+                case .problemType:
+                    SettingProblemTypeView()
+                }
+            }
+            .navigationDestination(for: ExplanationDestination.self) { destination in
+                switch destination {
+                case .home:
+                    ExplanationHomeView()
+                case .lesson(let lesson):
+                    ExplanationLessonView(lesson: lesson)
+                case .quiz(let lesson):
+                    ExplanationQuizView(lesson: lesson)
+                }
             }
             .onAppear() {
                 gameCenterManager.initializeLocalPlayer()
@@ -194,6 +248,7 @@ struct HomeView: View {
         }
     }
 }
+    
 struct MiniCardView: View {
     let title: String
     let mark: String
