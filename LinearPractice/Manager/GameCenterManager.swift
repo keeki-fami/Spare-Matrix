@@ -28,7 +28,9 @@ final class GameCenterManager: NSObject {
     
     var error: Error?
     private(set) var isAuthenticated = false
+    static let highscoreID = "com.LinearPractice.keekifami.HighScore"
     
+    // 周期的Leaderboardの期間を調べ、コンボを変更する。
     func checkDuration() async {
         var flag = true
         do {
@@ -60,6 +62,7 @@ final class GameCenterManager: NSObject {
         }
     }
     
+    //
     func initializeLocalPlayer() {
         if !isAuthenticated {
             GKLocalPlayer.local.authenticateHandler = { viewController, error in
@@ -75,8 +78,6 @@ final class GameCenterManager: NSObject {
                 self.isAuthenticated = GKLocalPlayer.local.isAuthenticated
                 
                 if self.isAuthenticated {
-                    //                GKAccessPoint.shared.location = .topTrailing
-                    print("isActiveに代入します")
                     GKAccessPoint.shared.isActive = false
                     print("GameCenter Player Authenticated as \(GKLocalPlayer.local.displayName)")
                 } else {
@@ -84,19 +85,6 @@ final class GameCenterManager: NSObject {
                 }
             }
         }
-    }
-    
-    func photo() async -> UIImage {
-        do {
-            Task {
-                let image: UIImage = try await GKLocalPlayer.local.loadPhoto(for: .normal)
-                return image
-            }
-        } catch {
-            print("a")
-            return UIImage(systemName: "person.crop.circle.fill")!
-        }
-        return UIImage(systemName: "person.crop.circle.fill")!
     }
     
     private func present(_ viewController: UIViewController) {
@@ -112,30 +100,27 @@ final class GameCenterManager: NSObject {
         top.present(viewController, animated: true)
     }
     
+    // Leaderboardを表示する
     func showLeaderboards() {
         guard GKLocalPlayer.local.isAuthenticated else {
             initializeLocalPlayer()
             return
         }
-        //        GKAccessPoint.shared.isActive = true
-        //        if GKAccessPoint.shared.isActive {
+        
         GKAccessPoint.shared.trigger(state: .leaderboards, handler: {})
-        //        }
     }
     
-    static let leaderboardID = "com.LinearPractice.keekifami.HighScore"
-    
-    func submitScore(_ value: Int, to leaderboardID: String = GameCenterManager.leaderboardID) {
-        print("[submitScore] called \(leaderboardID)")
+    func submitScore(_ value: Int, to leaderboardID: String = GameCenterManager.highscoreID) {
+        print("[submitScore] called \(GameCenterManager.highscoreID)")
         guard GKLocalPlayer.local.isAuthenticated else {
             initializeLocalPlayer()
             return
         }
-        GKLeaderboard.submitScore(value, context: 0, player: GKLocalPlayer.local, leaderboardIDs: [leaderboardID]) { error in
+        GKLeaderboard.submitScore(value, context: 0, player: GKLocalPlayer.local, leaderboardIDs: [GameCenterManager.highscoreID]) { error in
             if let error = error {
                 print("Error submitting score: \(error.localizedDescription)")
             } else {
-                print("Score of \(value), to leaderboard \(leaderboardID)")
+                print("Score of \(value), to leaderboard \(GameCenterManager.highscoreID)")
             }
         }
     }

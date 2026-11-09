@@ -44,58 +44,6 @@ enum HomeDestination: Hashable {
     case timeAttack
 }
 
-struct GridBackground: View {
-    // 格子の間隔
-    var gridSize: CGFloat = 20
-    
-    // 格子線の色
-    var gridColor: Color = Color(
-        red: 201 / 255,
-        green: 221 / 255,
-        blue: 240 / 255
-    )
-    
-    // 背景色
-    var backgroundColor: Color = Color(
-        red: 252 / 255,
-        green: 253 / 255,
-        blue: 254 / 255
-    )
-    
-    var body: some View {
-        Canvas { context, size in
-            var path = Path()
-            
-            // 縦線
-            stride(from: 0, through: size.width, by: gridSize)
-                .forEach { x in
-                    path.move(to: CGPoint(x: x, y: 0))
-                    path.addLine(
-                        to: CGPoint(x: x, y: size.height)
-                    )
-                }
-            
-            // 横線
-            stride(from: 0, through: size.height, by: gridSize)
-                .forEach { y in
-                    path.move(to: CGPoint(x: 0, y: y))
-                    path.addLine(
-                        to: CGPoint(x: size.width, y: y)
-                    )
-                }
-            
-            context.stroke(
-                path,
-                with: .color(gridColor),
-                lineWidth: 0.8
-            )
-        }
-        .background(backgroundColor)
-        .ignoresSafeArea()
-    }
-}
-
-
 struct HomeView: View {
     @State private var gameCenterManager = GameCenterManager.shared
     @Binding var navigationPath: NavigationPath
@@ -117,36 +65,6 @@ struct HomeView: View {
                             Spacer()
                         }
                     }
-//                Spacer()
-//                CardView(
-//                    title: "無限行列計算モード",
-//                    description: "行列を無限に生成\n満足がいくまで練習",
-//                    type: .infinity
-//                )
-//                .frame(width: 350, height: 170)
-//                CardView(
-//                    title: "タイムアタック",
-//                    description: "行列を無限に生成\n満足がいくまで練習",
-//                    type: .timeattack
-//                )
-//                .frame(width: 350, height: 170)
-//                HStack {
-//                    Spacer()
-//                    MiniCardView(
-//                        title: "ランキング",
-//                        mark: "🏆",
-//                        type: .ranking
-//                    )
-//                    .frame(width: 170, height: 100)
-//                    //                Spacer()
-//                    MiniCardView(
-//                        title: "解説",
-//                        mark: "📚",
-//                        type: .tutorial
-//                    )
-//                    .frame(width: 170, height: 100)
-//                    Spacer()
-//                }
                 Spacer()
                 Button {
                     navigationPath.append(HomeDestination.infinity)
@@ -164,7 +82,7 @@ struct HomeView: View {
                 } label: {
                     CardView(
                         title: "タイムアタック",
-                        description: "行列を無限に生成\n満足がいくまで練習",
+                        description: "世界中のプレイヤーと行列計算の速さでバトル！\n行列王を目指せ！",
                         type: .timeattack
                     )
                     .frame(width: 350, height: 170)
@@ -220,59 +138,6 @@ struct HomeView: View {
             }
         }
         
-    }
-}
-
-struct MiniCardView: View {
-    let title: String
-    let mark: String
-    let type: CardColor
-    var body: some View {
-        RoundedRectangle(cornerRadius: 20)
-            .fill(
-                LinearGradient(colors: [
-                    type.topColor,
-                    type.bottomColor
-                ], startPoint: .top, endPoint: .bottom)
-            )
-            .overlay(alignment: .top) {
-                Text(mark)
-                    .font(.largeTitle)
-                    .shadow(color: .white.opacity(0.5), radius: 5)
-                    .padding([.top], 20)
-            }
-            .overlay(alignment: .bottom) {
-                Text("\(title)")
-                    .padding([.bottom], 10)
-                    .foregroundStyle(.white)
-                    .fontWeight(.bold)
-            }
-    }
-}
-struct CardView: View {
-    let title: String
-    let description: String
-    let type: CardColor
-    var body: some View {
-        RoundedRectangle(cornerRadius: 20)
-            .fill(
-                LinearGradient(colors: [
-                    type.topColor,
-                    type.bottomColor
-                ], startPoint: .top, endPoint: .bottom)
-            )
-            .overlay() {
-                VStack {
-                    Text("\(title)")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .foregroundStyle(.white)
-                    Text("\(description)")
-                        .frame(width: 150, alignment: .center)
-                        .font(.caption)
-                        .foregroundStyle(.white)
-                }
-            }
     }
 }
 

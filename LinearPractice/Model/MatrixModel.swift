@@ -19,9 +19,11 @@ struct MatrixValue: Identifiable, Hashable {
     static func == (lhs: MatrixValue, rhs: MatrixValue) -> Bool {
         return lhs.value == rhs.value
     }
+    
     static func == (lhs: MatrixValue, rhs: Int) -> Bool {
         return lhs.value == rhs
     }
+    
     static func == (lhs: Int, rhs: MatrixValue) -> Bool {
         return lhs == rhs.value
     }

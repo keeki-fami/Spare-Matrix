@@ -58,7 +58,11 @@ struct SettingView: View {
             settingViewModel.changeHand()
         }
         .sheet(isPresented: $isMail, content: {
-            MailView(recipients: ["keekiApp.feedback@gmail.com"], subject: "無限行列計算 お問合せ", body: "aa")
+            MailView(
+                recipients: ["keekiapp.feedback@gmail.com"],
+                subject: "無限行列計算 お問合せ",
+                body: ""
+            )
         })
         .navigationTitle("設定")
     }
@@ -110,126 +114,3 @@ struct SettingProblemTypeView: View {
         }
     }
 }
-
-struct NumberButtonStyle: ButtonStyle {
-    let onTouchDown: () -> Void
-    let onTouchUp: () -> Void
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .background(Color(red: 217/255, green: 217/255, blue: 217/255))
-            .foregroundColor(.black)
-            .clipShape(
-                RoundedRectangle(cornerRadius: 5)
-            )
-            .shadow(color: .black.opacity( configuration.isPressed ? 0 : 0.5 ), radius: 1, x: 0, y: 2)
-            .onChange(of: configuration.isPressed) {
-                if $1 {
-                    onTouchDown()
-                } else {
-                    onTouchUp()
-                }
-            }
-    }
-}
-
-@Observable
-class SettingViewModel {
-    var isOn: Bool = true
-    var selectedHand: Hand = .right
-    let encoder = JSONEncoder()
-    let decoder = JSONDecoder()
-    
-    var add = true
-    var sub = true
-    var mul = true
-    var determinant = true
-    
-    var oldadd = true
-    var oldsub = true
-    var oldmul = true
-    var olddet = true
-    
-    var dic: [ProblemType: Bool] = [
-        .add: true,
-        .sub: true,
-        .mul: true,
-        .determinant: true
-    ]
-    
-    func setOldState() {
-        self.oldadd = add
-        self.oldsub = sub
-        self.oldmul = mul
-        self.olddet = determinant
-    }
-    
-    var isChanged: Bool {
-        !(oldadd == add && oldsub == sub && oldmul == mul && olddet == determinant)
-    }
-    
-}
-
-
-extension SettingViewModel {
-    
-    func storeProblemType() {
-        do {
-            dic[.add] = add
-            dic[.sub] = sub
-            dic[.mul] = mul
-            dic[.determinant] = determinant
-            
-            let data = try encoder.encode(dic)
-            let jsonString = String(data: data, encoding: .utf8)
-            UserDefaults.standard.set(jsonString, forKey: "problemTypeList")
-        } catch {
-            print("error")
-            // TODO: show error message
-        }
-    }
-    
-    func fetchProblemType() {
-        do {
-            guard let userdefaults = UserDefaults.standard.string(forKey: "problemTypeList") else {
-                return
-            }
-            
-            let data = userdefaults.data(using: .utf8)!
-            let json = try decoder.decode([ProblemType: Bool].self, from: data)
-            self.dic = json
-            
-            add = dic[.add] ?? true
-            sub = dic[.sub] ?? true
-            mul = dic[.mul] ?? true
-            determinant = dic[.determinant] ?? true
-            
-        } catch {
-            print("error")
-            // TODO: show error message
-        }
-    }
-    
-    func changeHand() {
-        do {
-            let data = try encoder.encode(selectedHand)
-            UserDefaults.standard.set(data, forKey: "hand")
-        } catch {
-            print("error: \(error)")
-            selectedHand = .right
-        }
-    }
-    
-    func fetchHand() {
-        do {
-            if let data = UserDefaults.standard.data(forKey: "hand") {
-                selectedHand = try decoder.decode(Hand.self, from: data)
-            } else {
-                selectedHand = .right
-            }
-        } catch {
-            print("error: \(error)")
-            selectedHand = .right
-        }
-    }
-}
-

@@ -30,7 +30,6 @@ struct TimeAttackView: View {
                         timeAttackViewModel: timeAttackViewModel
                     ) {
                     }
-                    .border(.red)
                 case .playing:
                     TimeAttackPlayingView(
                         timeAttackViewModel: timeAttackViewModel,
@@ -230,13 +229,21 @@ struct TimeAttackPlayingView: View {
                                 endPoint: .bottom)
                         )
                 }
+                BubbleBackgroundView(isActive: $timeAttackViewModel.isBubble)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 VStack(spacing: 0) {
                     // TODO: phaseによって変わる。
-                    ProgressView(
-                        value: timeAttackViewModel.feverPhase == .normal ? Double(timeAttackViewModel.combo)/10.0 : timeAttackViewModel.progress
-                    )
-                        .frame(height: 50)
-                        .padding([.leading, .trailing], 100)
+                    if timeAttackViewModel.feverPhase == .fever {
+                        ProgressView(value: timeAttackViewModel.progress)
+                            .frame(height: 50)
+                            .padding([.leading, .trailing], 150)
+                            .tint(timeAttackViewModel.tintColor)
+                    } else {
+                        ProgressView(value: Double(timeAttackViewModel.combo)/10.0)
+                            .frame(height: 50)
+                            .padding([.leading, .trailing], 150)
+                            .tint(timeAttackViewModel.tintColor)
+                    }
                     Group {
                         switch timeAttackViewModel.playingPhase {
                         case .before:

@@ -40,8 +40,6 @@ struct LinearPracticeApp: App {
                                 ExplanationHomeView()
                             case .lesson(let lesson):
                                 ExplanationLessonView(lesson: lesson)
-                            case .quiz(let lesson):
-                                ExplanationQuizView(lesson: lesson)
                             }
                         }
                 }

@@ -29,6 +29,8 @@ class TimeAttackViewModel: MatrixManager {
     var combo = 0
     var feverPhase: TimeAttackFeverPhase = .normal
     
+    var isBubble = false
+    
     var timeAttackLeaderboard: String {
         switch genProblemType {
         case .add:
@@ -115,6 +117,7 @@ class TimeAttackViewModel: MatrixManager {
                         withAnimation {
                             self.feverPhase = .fever
                         }
+                        self.isBubble.toggle()
                         manager.start()
                         self.feverStart()
                     }
@@ -350,6 +353,11 @@ class TimeAttackViewModel: MatrixManager {
                 result.ranking = ranking
                 result.idx = idx
                 print("idx: \(idx)")
+                
+                if ranking.count > 5 {
+                    let len = ranking.count
+                    ranking.removeLast(len - 5)
+                }
                 
                 let encodeData = try JSONEncoder().encode(ranking)
                 UserDefaults.standard.set(encodeData, forKey: self.LocalRankingKey)
