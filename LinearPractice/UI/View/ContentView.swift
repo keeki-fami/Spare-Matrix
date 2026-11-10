@@ -404,6 +404,9 @@ struct ContentView: View {
                             }))
                             .padding()
                         }
+                        .onDisappear {
+                            contentViewModel.fromActiveToInactive()
+                        }
                         
                     }
                     .transition(.opacity)
@@ -416,6 +419,12 @@ struct ContentView: View {
                                 Task {
                                     await contentViewModel.checkAnswer()
                                 }
+                            }, number: {
+                                SoundPlayer.shared.play(.tap)
+                            }, minus: {
+                                SoundPlayer.shared.play(.tap)
+                            }, backspace: {
+                                SoundPlayer.shared.play(.tap)
                             })
                         }
                     } else {
@@ -437,6 +446,7 @@ struct ContentView: View {
                                         }
                                     })
                                     .buttonStyle(SubButtonStyle(onTouchUp: {
+                                        SoundPlayer.shared.play(.tap)
                                         if memoTool == .eraser {
                                             memoView.tool = PKInkingTool(
                                                 .pen,
@@ -454,6 +464,7 @@ struct ContentView: View {
                                     
                                     
                                     Button(action: {
+                                        SoundPlayer.shared.play(.tap)
                                         memoView.drawing = PKDrawing()
                                     }, label: {
                                         ZStack {
@@ -474,37 +485,6 @@ struct ContentView: View {
                                 .padding()
                             }
                     }
-                }
-                .alert(
-                    "最新版があります",
-                    isPresented: $isUpdate
-                ) {
-                    Button(role: .cancel) {
-                        
-                    } label : {
-                        Text("キャンセル")
-                    }
-                    Button(role: .confirm) {
-                        if let url = URL(string: "https://apps.apple.com/jp/app/%E7%84%A1%E9%99%90%E8%A1%8C%E5%88%97%E8%A8%88%E7%AE%97/id6785983550") {
-                            if UIApplication.shared.canOpenURL(url) {
-                                UIApplication.shared.open(url, options: [:], completionHandler: nil)
-                            }
-                        }
-                    } label: {
-                        Text("AppStoreに移動")
-                    }
-                } message: {
-                    Text("AppStoreに移動して最新版をインストールします")
-                }
-                .appVersionMonitor(id: 6785983550) { status in
-                    switch status {
-                    case .updateAvailable:
-                        isUpdate = true
-                    default:
-                        print(status)
-                        isUpdate = false
-                    }
-                    
                 }
                 .onChange(of: scenePhase, initial: false) {oldPhase, newPhase in
                     
@@ -560,53 +540,6 @@ struct ContentView: View {
                         
                     }
                     .sharedBackgroundVisibility(.hidden)
-//                    ToolbarItem(placement: .topBarLeading) {
-//                        Menu {
-//                            NavigationLink(destination: {
-//                                ProfileView(manager: $gameCenterManager)
-//                                    .onAppear() {
-//                                        gameCenterManager.submitScore(contentViewModel.success, to: "com.LinearPractice.keekifami.HighScore")
-//                                        gameCenterManager.submitScore(contentViewModel.combo, to: "com.LinearPractice.keekifami.WeeklyComboRanking")
-//                                        UserDefaults.standard.set(contentViewModel.success, forKey: "success")
-//                                        UserDefaults.standard.set(contentViewModel.combo, forKey: "combo")
-//                                        
-//                                    }
-//                            }, label: {
-//                                Label("プロフィール", systemImage: "person")
-//                            })
-//                            
-//                            
-//                            Button {
-//                                gameCenterManager.submitScore(contentViewModel.success, to: "com.LinearPractice.keekifami.HighScore")
-//                                gameCenterManager.submitScore(contentViewModel.combo, to: "com.LinearPractice.keekifami.WeeklyComboRanking")
-//                                UserDefaults.standard.set(contentViewModel.success, forKey: "success")
-//                                UserDefaults.standard.set(contentViewModel.combo, forKey: "combo")
-//                                navigationPath.append(ExplanationDestination.home)
-//                            } label: {
-//                                Label("チュートリアル", systemImage: "book.pages")
-//                            }
-//                            
-//                            Button {
-//                                navigationPath.append(SettingDestination.home)
-//                            } label : {
-//                                Label("設定", systemImage: "gearshape")
-//                            }
-//                            
-//                            Button(action: {
-//                                gameCenterManager.submitScore(contentViewModel.success, to: "com.LinearPractice.keekifami.HighScore")
-//                                gameCenterManager.submitScore(contentViewModel.combo, to: "com.LinearPractice.keekifami.WeeklyComboRanking")
-//                                UserDefaults.standard.set(contentViewModel.success, forKey: "success")
-//                                UserDefaults.standard.set(contentViewModel.combo, forKey: "combo")
-//                                
-//                                gameCenterManager.showLeaderboards()
-//                            }, label: {
-//                                Label("ランキング", systemImage: "trophy")
-//                            })
-//                            
-//                        } label: {
-//                            Image(systemName: "info")
-//                        }
-//                    }
                 }
         }
         .overlay(alignment: .top) {

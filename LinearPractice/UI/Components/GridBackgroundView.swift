@@ -57,3 +57,7 @@ struct GridBackground: View {
         .ignoresSafeArea()
     }
 }
+
+#Preview {
+    GridBackground()
+}

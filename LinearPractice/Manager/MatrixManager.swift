@@ -80,6 +80,7 @@ class MatrixManager {
     }
     
     func togglePadView() {
+        SoundPlayer.shared.play(.tap)
         isKeyboard.toggle()
     }
     

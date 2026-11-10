@@ -1,7 +1,7 @@
-<h1 align="center"> 無限行列計算 </h1> <br>
+<h1 align="center"> 隙間時間で行列計算 </h1> <br>
 <p align="center">
     <a href="https://apps.apple.com/jp/app/%E7%84%A1%E9%99%90%E8%A1%8C%E5%88%97%E8%A8%88%E7%AE%97/id6785983550">
-        <img alt="無限行列計算" src="./images/matrixpractice.png" title="無限行列計算" width="200">
+        <img alt="隙間時間で行列計算" src="./images/sparematrix.png" title="無限行列計算" width="200">
     </a>
 </p>
 
@@ -16,12 +16,12 @@
 ## Overview
 
 <p align="center">
-<img alt="無限行列計算 appstore" src="./images/AppStore.png" width="800">
+<img alt="無限行列計算 appstore" src="./images/AppStore2.png" width="800">
 </p>
 
 Matrix calculations are an important part of university mathematics, but finding enough practice problems can be surprisingly difficult.
 
-**無限行列計算** generates an unlimited number of matrix calculation problems, allowing you to practice as much as you want.
+**隙間時間で行列計算** generates an unlimited number of matrix calculation problems, allowing you to practice as much as you want.
 
 Whether you are reviewing for a class, preparing for an exam, or simply trying to improve your calculation skills, you can keep solving problems without running out of exercises.
 

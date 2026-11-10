@@ -35,9 +35,16 @@ struct TimeAttackView: View {
                         timeAttackViewModel: timeAttackViewModel,
                         opacity: $opacity
                     )
+                    .onAppear() {
+                        BGMPlayer.shared.fadeStop()
+                    }
                 case .result:
                     TimeAttackResultView(
-                        timeAttackViewModel: timeAttackViewModel)
+                        timeAttackViewModel: timeAttackViewModel
+                    )
+                    .onAppear() {
+                        SoundPlayer.shared.play(.resultAppear)
+                    }
                 case .white:
                     EmptyView()
                 }
@@ -81,6 +88,7 @@ struct TimeAttackChooseView: View {
                 Button(action: {
                     timeAttackViewModel.genProblemType = .add
                     print("addを渡してinitGenerateします。")
+                    SoundPlayer.shared.play(.resultAppear)
                     timeAttackViewModel.initGenerate(type: .add)
                     timeAttackViewModel.moveWithWhiteSpace(after: .playing)
                 },label: {
@@ -110,6 +118,7 @@ struct TimeAttackChooseView: View {
                 
                 Button(action: {
                     timeAttackViewModel.genProblemType = .sub
+                    SoundPlayer.shared.play(.resultAppear)
                     timeAttackViewModel.initGenerate(type: .sub)
                     timeAttackViewModel.moveWithWhiteSpace(after: .playing)
                 }, label: {
@@ -138,6 +147,7 @@ struct TimeAttackChooseView: View {
                     .padding([.leading, .trailing], 24)
                 Button(action: {
                     timeAttackViewModel.genProblemType = .mul
+                    SoundPlayer.shared.play(.resultAppear)
                     timeAttackViewModel.initGenerate(type: .mul)
                     timeAttackViewModel.moveWithWhiteSpace(after: .playing)
                 }, label: {
@@ -181,6 +191,7 @@ struct TimeAttackPlayingBeforeView: View {
             if !isPushed {
                 Text("ボタンを押すと開始します。")
                 Button("開始する。") {
+                    SoundPlayer.shared.play(.countdown)
                     timeAttackViewModel.start_count()
                     isPushed = true
                 }
@@ -320,6 +331,12 @@ struct TimeAttackPlayingView: View {
                                 Task {
                                     await timeAttackViewModel.checkAnswer()
                                 }
+                            }, number: {
+                                SoundPlayer.shared.play(.tap)
+                            }, minus: {
+                                SoundPlayer.shared.play(.tap)
+                            }, backspace: {
+                                SoundPlayer.shared.play(.tap)
                             })
                         } else {
                             MemoView(memoView: $memoView, isKeyboard: $timeAttackViewModel.isKeyboard)
@@ -340,6 +357,7 @@ struct TimeAttackPlayingView: View {
                                             }
                                         })
                                         .buttonStyle(SubButtonStyle(onTouchUp: {
+                                            SoundPlayer.shared.play(.tap)
                                             if memoTool == .eraser {
                                                 memoView.tool = PKInkingTool(
                                                     .pen,
@@ -357,6 +375,7 @@ struct TimeAttackPlayingView: View {
                                         
                                         
                                         Button(action: {
+                                            SoundPlayer.shared.play(.tap)
                                             memoView.drawing = PKDrawing()
                                         }, label: {
                                             ZStack {
@@ -406,6 +425,8 @@ struct TimeAttackPlayingView: View {
                         .fill(.black.opacity(0.5))
                         .overlay() {
                             Text("終了！")
+                                .font(.largeTitle)
+                                .fontWeight(.bold)
                                 .foregroundStyle(.white)
                         }
                         .ignoresSafeArea()
@@ -472,19 +493,24 @@ struct TimeAttackResultView: View {
                         }
                     }
                 Button("Xでスコアを共有") {
+                    SoundPlayer.shared.play(.tap)
                     shareOnTwitter(correctCount: timeAttackViewModel.score)
                 }
                 Button("ランキングを確認") {
+                    SoundPlayer.shared.play(.tap)
                     GameCenterManager.shared.showLeaderboards()
-                    dismiss()
                 }
                 Button("ホームに戻る") {
+                    SoundPlayer.shared.play(.tap)
                     timeAttackViewModel.sendToLeaderboard()
                     dismiss()
                 }
 
 
                 Spacer()
+                
+                AdBannerView()
+                    .frame(width: 370, height: 50)
             }
             .onAppear() {
                 timeAttackViewModel.sendToLeaderboard()
@@ -494,7 +520,7 @@ struct TimeAttackResultView: View {
         .navigationBarBackButtonHidden(true)
     }
     func shareOnTwitter(correctCount: Int) {
-        let text = String("✨行列計算 タイムアタックチャレンジ✨ \n\n 引き算部門：score \(correctCount)\n\nアプリ無限行列計算を今すぐインストール\n\nhttps://apps.apple.com/jp/app/%E7%84%A1%E9%99%90%E8%A1%8C%E5%88%97%E8%A8%88%E7%AE%97/id6785983550")
+        let text = String("✨行列計算 タイムアタックチャレンジ✨ \n\n \(timeAttackViewModel.problemTypeName)部門：score \(correctCount)\n\nアプリ「隙間時間で行列計算」を今すぐインストール\n\nhttps://apps.apple.com/jp/app/%E7%84%A1%E9%99%90%E8%A1%8C%E5%88%97%E8%A8%88%E7%AE%97/id6785983550")
         let encodedText = text.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         
         if let encodedText = encodedText, let url = URL(string: "https://x.com/compose/post?text=\(encodedText)") {

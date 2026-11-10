@@ -64,6 +64,7 @@ class ContentViewModel: MatrixManager {
             }
             
             success += 1
+            SoundPlayer.shared.play(.problemCorrect)
             
             // TODO: delayを入れる？
                 try? await Task.sleep(nanoseconds: 200000000)
@@ -109,6 +110,7 @@ class ContentViewModel: MatrixManager {
             UserDefaults.standard.set(success, forKey: "success")
             UserDefaults.standard.set(failure, forKey: "failure")
             print("[Warning] This function is for infinity mode only.")
+        print("combo, success, failure")
     }
     
     struct PhrasePer5 {

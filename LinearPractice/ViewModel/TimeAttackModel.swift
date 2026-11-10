@@ -44,6 +44,19 @@ class TimeAttackViewModel: MatrixManager {
         }
     }
     
+    var problemTypeName: String {
+        switch genProblemType {
+        case .add:
+            "足し算"
+        case .sub:
+            "引き算"
+        case .mul:
+            "掛け算"
+        default:
+            ""
+        }
+    }
+    
     var LocalRankingKey: String {
         switch genProblemType {
         case .add:
@@ -79,16 +92,16 @@ class TimeAttackViewModel: MatrixManager {
     
     override func initGenerate(type: ProblemType? = nil) {
         super.initGenerate(type: genProblemType)
-        print("called initGenerate by timeAtackViewModel: \(type)")
-        print("\(String(describing: super.matrixProblem1?.problemType))")
-        print("\(String(describing: super.matrixProblem2?.problemType))")
+//        print("called initGenerate by timeAtackViewModel: \(type)")
+//        print("\(String(describing: super.matrixProblem1?.problemType))")
+//        print("\(String(describing: super.matrixProblem2?.problemType))")
     }
     
     override func generate(type: ProblemType? = nil) {
         super.generate(type: genProblemType)
-        print("called generate by timeAtackViewModel: \(type)")
-        print("\(String(describing: super.matrixProblem1?.problemType))")
-        print("\(String(describing: super.matrixProblem2?.problemType))")
+//        print("called generate by timeAtackViewModel: \(type)")
+//        print("\(String(describing: super.matrixProblem1?.problemType))")
+//        print("\(String(describing: super.matrixProblem2?.problemType))")
     }
     
     override func checkAnswer() async {
@@ -106,7 +119,7 @@ class TimeAttackViewModel: MatrixManager {
                     num = ans
                 }
                 
-                
+                SoundPlayer.shared.play(.problemCorrect)
                 switch self.feverPhase {
                 case .normal:
                     withAnimation {
@@ -207,13 +220,16 @@ class TimeAttackViewModel: MatrixManager {
         remainingSeconds = gameTime
         countdown = 3
         countdownTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+            print("\(self.countdown)")
             if self.countdown > 1 {
+                SoundPlayer.shared.play(.countdown)
                 print(self.countdown)
                 self.countdown -= 1
             } else {
                 self.countdownTimer?.invalidate()
                 self.start()
                 self.playingPhase = .playing
+                BGMPlayer.shared.play(.buttleBGM)
             }
         }
     }
@@ -221,7 +237,6 @@ class TimeAttackViewModel: MatrixManager {
     func start() {
         
         timerTask?.cancel()
-
         timerTask = Task { @MainActor [weak self] in
             for _ in 0..<gameTime {
                 do {
@@ -235,11 +250,13 @@ class TimeAttackViewModel: MatrixManager {
                 }
                 self.remainingSeconds -= 1
             }
-
+            
             guard let self, self.nowPhase == .playing else { return }
-
+            
             do {
                 self.playingPhase = .done
+                BGMPlayer.shared.stop()
+                SoundPlayer.shared.play(.timeAttackFinish)
                 try await Task.sleep(nanoseconds: 3_000_000_000)
                 moveWithWhiteSpace(after:.result)
             } catch {

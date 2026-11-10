@@ -67,6 +67,7 @@ struct HomeView: View {
                     }
                 Spacer()
                 Button {
+                    SoundPlayer.shared.play(.tap)
                     navigationPath.append(HomeDestination.infinity)
                 } label: {
                     CardView(
@@ -74,10 +75,13 @@ struct HomeView: View {
                         description: "行列を無限に生成\n満足がいくまで練習",
                         type: .infinity
                     )
-                    .frame(width: 350, height: 170)
+                    .frame(height: 170)
+                    .padding([.leading, .trailing], 30)
                 }
                 .buttonStyle(.plain)
+                
                 Button {
+                    SoundPlayer.shared.play(.tap)
                     navigationPath.append(HomeDestination.timeAttack)
                 } label: {
                     CardView(
@@ -85,12 +89,14 @@ struct HomeView: View {
                         description: "世界中のプレイヤーと行列計算の速さでバトル！\n行列王を目指せ！",
                         type: .timeattack
                     )
-                    .frame(width: 350, height: 170)
+                    .frame(height: 170)
+                    .padding([.leading, .trailing], 30)
                 }
                 .buttonStyle(.plain)
-                HStack {
-                    Spacer()
+                
+                HStack(spacing: 0) {
                     Button {
+                        SoundPlayer.shared.play(.tap)
                         gameCenterManager.showLeaderboards()
                     } label: {
                         MiniCardView(
@@ -98,10 +104,13 @@ struct HomeView: View {
                             mark: "🏆",
                             type: .ranking
                         )
-                        .frame(width: 170, height: 100)
+                        .frame(height: 100)
+                        
                     }
                     .buttonStyle(.plain)
+                    Spacer()
                     Button {
+                        SoundPlayer.shared.play(.tap)
                         navigationPath.append(ExplanationDestination.home)
                     } label: {
                         MiniCardView(
@@ -109,14 +118,17 @@ struct HomeView: View {
                             mark: "📚",
                             type: .tutorial
                         )
-                        .frame(width: 170, height: 100)
+                        .frame(height: 100)
                     }
                     .buttonStyle(.plain)
-                    Spacer()
                     
                 }
+//                .border(.red)
+                .padding([.leading, .trailing], 30)
                 Spacer()
                 // AdMob
+                AdBannerView()
+                    .frame(width: 370, height: 50)
             }
             .toolbar{
                 ToolbarItem(placement: .topBarLeading) {
@@ -128,12 +140,8 @@ struct HomeView: View {
                 }
             }
             .onAppear() {
-                gameCenterManager.initializeLocalPlayer()
-                
-                if gameCenterManager.isAuthenticated {
-                    Task {
-                        await gameCenterManager.checkDuration()
-                    }
+                Task.detached(priority: .background) {
+                    await BGMPlayer.shared.play(.homeBGM)
                 }
             }
         }
@@ -143,6 +151,11 @@ struct HomeView: View {
 
 
 #if DEBUG
+#Preview {
+    @Previewable @State var navigationPath = NavigationPath()
+    HomeView(navigationPath: $navigationPath)
+        .environment(ContentViewModel())
+}
 #Preview {
     @Previewable @State var navigationPath = NavigationPath()
     HomeView(navigationPath: $navigationPath)

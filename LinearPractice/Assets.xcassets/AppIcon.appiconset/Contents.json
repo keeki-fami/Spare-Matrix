@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "infiinty_matrix_2.png",
+      "filename" : "SpareMatrix 2.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -13,6 +13,7 @@
           "value" : "dark"
         }
       ],
+      "filename" : "SpareMatrix 3.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -24,6 +25,7 @@
           "value" : "tinted"
         }
       ],
+      "filename" : "SpareMatrix 4.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
