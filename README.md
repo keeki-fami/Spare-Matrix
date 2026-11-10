@@ -1,7 +1,7 @@
 <h1 align="center"> 隙間時間で行列計算 </h1> <br>
 <p align="center">
     <a href="https://apps.apple.com/jp/app/%E7%84%A1%E9%99%90%E8%A1%8C%E5%88%97%E8%A8%88%E7%AE%97/id6785983550">
-        <img alt="隙間時間で行列計算" src="./images/sparematrix.png" title="無限行列計算" width="200">
+        <img alt="隙間時間で行列計算" src="./images/SpareMatrix.png" title="隙間時間で行列計算" width="200">
     </a>
 </p>
 
