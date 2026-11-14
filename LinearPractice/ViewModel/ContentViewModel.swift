@@ -40,6 +40,10 @@ class ContentViewModel: MatrixManager {
         await super.checkAnswer()
         if isAnswer {
             self.userInput = ""
+            withAnimation(.easeOut(duration: 0.3)) {
+                self.combo += 1
+                print(self.combo, "combo")
+            }
             if nowProblem == .problem1 {
                 self.isSuccess1 = true
             } else {
@@ -48,9 +52,8 @@ class ContentViewModel: MatrixManager {
             
             let haptics = UserDefaults.standard.bool(forKey: "isHaptics")
             print(haptics)
-            withAnimation(.easeOut(duration: 0.3)) {
-                combo += 1
-            }
+            
+            
             if haptics {
                 if combo == BackgroundAnimationPhase.phase2.rawValue || combo == BackgroundAnimationPhase.phase3.rawValue  || combo == BackgroundAnimationPhase.phase4.rawValue  {
                     manager.start()
@@ -87,6 +90,7 @@ class ContentViewModel: MatrixManager {
 
         } else {
             // GameCenterに送信
+            print("called: com.LinearPractice.keeki.WeeklyComboRanking")
             GameCenterManager.shared.submitScore(combo, to: "com.LinearPractice.keeki.WeeklyComboRanking")
             withAnimation {
                 combo = 0
@@ -104,6 +108,7 @@ class ContentViewModel: MatrixManager {
     }
     
     func fromActiveToInactive() {
+        print("called fromactive to inactive")
             GameCenterManager.shared.submitScore(success, to: "com.LinearPractice.keekifami.HighScore")
             GameCenterManager.shared.submitScore(combo, to: "com.LinearPractice.keeki.WeeklyComboRanking")
             UserDefaults.standard.set(combo, forKey: "combo")

@@ -67,6 +67,8 @@ struct TimeAttackChooseView: View {
     @Binding var opacity: Double
     var timeAttackViewModel: TimeAttackViewModel
     let onStart: () -> Void
+    // 連続タップ対策
+    @State private var isTapped = false
 
     var body: some View {
         ZStack {
@@ -86,11 +88,14 @@ struct TimeAttackChooseView: View {
 
                 Spacer()
                 Button(action: {
-                    timeAttackViewModel.genProblemType = .add
-                    print("addを渡してinitGenerateします。")
-                    SoundPlayer.shared.play(.resultAppear)
-                    timeAttackViewModel.initGenerate(type: .add)
-                    timeAttackViewModel.moveWithWhiteSpace(after: .playing)
+                    if !isTapped {
+                        isTapped = true
+                        timeAttackViewModel.genProblemType = .add
+                        print("addを渡してinitGenerateします。")
+                        SoundPlayer.shared.play(.resultAppear)
+                        timeAttackViewModel.initGenerate(type: .add)
+                        timeAttackViewModel.moveWithWhiteSpace(after: .playing)
+                    }
                 },label: {
                     RoundedRectangle(cornerRadius: 20)
                         .fill(
@@ -117,10 +122,13 @@ struct TimeAttackChooseView: View {
                     .padding([.leading, .trailing], 24)
                 
                 Button(action: {
-                    timeAttackViewModel.genProblemType = .sub
-                    SoundPlayer.shared.play(.resultAppear)
-                    timeAttackViewModel.initGenerate(type: .sub)
-                    timeAttackViewModel.moveWithWhiteSpace(after: .playing)
+                    if !isTapped {
+                        isTapped = true
+                        timeAttackViewModel.genProblemType = .sub
+                        SoundPlayer.shared.play(.resultAppear)
+                        timeAttackViewModel.initGenerate(type: .sub)
+                        timeAttackViewModel.moveWithWhiteSpace(after: .playing)
+                    }
                 }, label: {
                     RoundedRectangle(cornerRadius: 20)
                         .fill(
@@ -146,10 +154,13 @@ struct TimeAttackChooseView: View {
                     .frame(height: 150)
                     .padding([.leading, .trailing], 24)
                 Button(action: {
-                    timeAttackViewModel.genProblemType = .mul
-                    SoundPlayer.shared.play(.resultAppear)
-                    timeAttackViewModel.initGenerate(type: .mul)
-                    timeAttackViewModel.moveWithWhiteSpace(after: .playing)
+                    if !isTapped {
+                        isTapped = true
+                        timeAttackViewModel.genProblemType = .mul
+                        SoundPlayer.shared.play(.resultAppear)
+                        timeAttackViewModel.initGenerate(type: .mul)
+                        timeAttackViewModel.moveWithWhiteSpace(after: .playing)
+                    }
                 }, label: {
                     RoundedRectangle(cornerRadius: 20)
                         .fill(

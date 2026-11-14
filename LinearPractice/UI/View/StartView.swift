@@ -101,30 +101,32 @@ struct StartView: View {
                 BGMPlayer.shared.play(.titleBGM)
             }
             Button(action: {
-                Task {
-                    // 1. ボタンタップのアニメーション
-                    withAnimation {
-                        isButtonTapped = true
-                    }
-                    
-                    // 2. 音声処理（フェードアウトと再生を順番に待つ）
-                    // ※BGMPlayerが適切にアクター（またはMainActor）で設計されていれば、detachedしなくても別スレッドで処理されます
-                    BGMPlayer.shared.fadeStop()
-                    SoundPlayer.shared.play(.resultAppear)
-                    
-                    print("task前です")
-                    
-                    // 3. 2秒間待機（Swift 16 / iOS 16以降なら Task.sleep(for: .seconds(2)) も使えます）
-                    try? await Task.sleep(nanoseconds: 2_000_000_000)
-                    
-                    print("task後です")
-                    
-                    // 4. アニメーションを伴うフェーズ遷移（メインスレッドで確実に実行）
-                    withAnimation {
-                        startViewModel.nowPhase = .white
-                    } completion: {
+                if !isButtonTapped {
+                    Task {
+                        // 1. ボタンタップのアニメーション
                         withAnimation {
-                            startViewModel.nowPhase = .mainview
+                            isButtonTapped = true
+                        }
+                        
+                        // 2. 音声処理（フェードアウトと再生を順番に待つ）
+                        // ※BGMPlayerが適切にアクター（またはMainActor）で設計されていれば、detachedしなくても別スレッドで処理されます
+                        BGMPlayer.shared.fadeStop()
+                        SoundPlayer.shared.play(.resultAppear)
+                        
+                        print("task前です")
+                        
+                        // 3. 2秒間待機（Swift 16 / iOS 16以降なら Task.sleep(for: .seconds(2)) も使えます）
+                        try? await Task.sleep(nanoseconds: 2_000_000_000)
+                        
+                        print("task後です")
+                        
+                        // 4. アニメーションを伴うフェーズ遷移（メインスレッドで確実に実行）
+                        withAnimation {
+                            startViewModel.nowPhase = .white
+                        } completion: {
+                            withAnimation {
+                                startViewModel.nowPhase = .mainview
+                            }
                         }
                     }
                 }

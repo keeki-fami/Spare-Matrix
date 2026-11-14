@@ -110,17 +110,17 @@ final class GameCenterManager: NSObject {
         GKAccessPoint.shared.trigger(state: .leaderboards, handler: {})
     }
     
-    func submitScore(_ value: Int, to leaderboardID: String = GameCenterManager.highscoreID) {
-        print("[submitScore] called \(GameCenterManager.highscoreID)")
+    func submitScore(_ value: Int, to leaderboardID: String) {
+        print("[submitScore] called \(leaderboardID)")
         guard GKLocalPlayer.local.isAuthenticated else {
             initializeLocalPlayer()
             return
         }
-        GKLeaderboard.submitScore(value, context: 0, player: GKLocalPlayer.local, leaderboardIDs: [GameCenterManager.highscoreID]) { error in
+        GKLeaderboard.submitScore(value, context: 0, player: GKLocalPlayer.local, leaderboardIDs: [leaderboardID]) { error in
             if let error = error {
                 print("Error submitting score: \(error.localizedDescription)")
             } else {
-                print("Score of \(value), to leaderboard \(GameCenterManager.highscoreID)")
+                print("Score of \(value), to leaderboard \(leaderboardID)")
             }
         }
     }

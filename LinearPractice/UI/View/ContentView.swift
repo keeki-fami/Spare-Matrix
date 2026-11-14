@@ -10,6 +10,7 @@ import AppVersionMonitorSwiftUI
 import GameKit
 import NumberPad
 import PencilKit
+import AppTrackingTransparency
 
 extension Array {
     subscript (safe index: Index) -> Element? {
@@ -487,12 +488,13 @@ struct ContentView: View {
                     }
                 }
                 .onChange(of: scenePhase, initial: false) {oldPhase, newPhase in
-                    
+                    print("scenePhase is changed: \(oldPhase)->\(newPhase)")
                     if oldPhase == .background && newPhase == .active {
                         contentViewModel.appear()
                     } else if newPhase == .active {
                         GKAccessPoint.shared.isActive = false
                     }
+                    
                     // active以外の状態に遷移する時、コンボを送信する
                     if oldPhase == .active && newPhase != .active {
                         contentViewModel.fromActiveToInactive()
@@ -521,10 +523,14 @@ struct ContentView: View {
                     ToolbarItem(placement: .topBarTrailing) {
                         VStack(alignment: .trailing, spacing: 0) {
                             HStack(alignment: .bottom, spacing: 0) {
-                                Text("\(contentViewModel.combo)")
-                                    .font(.custom("", size: 20))
-                                    .contentTransition(.numericText(value: Double(contentViewModel.combo)))
-                                Text("combo")
+                                Text("\(contentViewModel.combo)combo").frame(alignment: .bottom)
+                                    .id(contentViewModel.combo)
+                                    .font(.system(size: 15))
+//                                    .contentTransition(.numericText(value: Double(contentViewModel.combo)))
+//                                Text("combo")
+                            }
+                            .onChange(of: contentViewModel.combo) {
+                                print("changed: \(contentViewModel.combo)")
                             }
                             .fixedSize(horizontal: true, vertical: false)
                             .foregroundStyle(contentViewModel.nowBackgroundPhase == .phase1 ? .black : .white)

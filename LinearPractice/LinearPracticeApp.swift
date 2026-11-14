@@ -8,6 +8,8 @@
 import SwiftUI
 import GoogleMobileAds
 import AppVersionMonitorSwiftUI
+import AppTrackingTransparency
+
 
 @main
 struct LinearPracticeApp: App {
@@ -16,6 +18,7 @@ struct LinearPracticeApp: App {
     @State private var navigationPath = NavigationPath()
     @State var startViewModel = StartViewModel()
     @State var isUpdate: Bool = false
+    @Environment(\.scenePhase) var scenePhase
     @AppStorage("initialLaunch") var initialLaunch: Bool = false
     
     var body: some Scene {
@@ -27,6 +30,13 @@ struct LinearPracticeApp: App {
                         .fill(.white)
                         .onAppear(){
                             print("rectangleが呼ばれた")
+                        }
+                        .onChange(of: scenePhase, initial: true) { _, newValue in
+                            print("変更されました。")
+                            if newValue == .active {
+                                print("requestAppTrackingTransparencyAuthorizationが呼ばれるー")
+                                requestAppTrackingTransparencyAuthorization()
+                            }
                         }
                 case .logo:
                     StartLogoView()
@@ -154,7 +164,27 @@ struct LinearPracticeApp: App {
         }
     }
 }
-
+func requestAppTrackingTransparencyAuthorization() {
+    if #available(iOS 14.5, *) {
+        
+        guard ATTrackingManager.trackingAuthorizationStatus == .notDetermined else { return }
+        print("AttackingAmanger.trackingAuthorizationStatusはnotDeterminedではないです。")
+        Task {
+            let status = await ATTrackingManager.requestTrackingAuthorization()
+            print("ATTrackingManager.requestTrackingAuthorizationについて、場合分けをします。\(status)")
+            switch status {
+                case .authorized, .restricted, .denied:
+                    //広告の表示など
+                    print("ok")
+                    await MobileAds.shared.start()
+                case .notDetermined:
+                    break
+                @unknown default:
+                    fatalError()
+            }
+        }
+    }
+}
 
 struct AdBannerView: UIViewRepresentable {
 

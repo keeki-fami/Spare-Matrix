@@ -210,6 +210,7 @@ struct ExplanationLessonView: View {
                     .frame(height: geometry.size.height * 0.34)
                 
                 Button {
+                    SoundPlayer.shared.play(.tap)
                     withAnimation(.easeInOut) {
                         if currentPage == lesson.slides.count - 1 {
                             dismiss()
